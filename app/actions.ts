@@ -19,15 +19,12 @@ export async function submitAnswer(
 }
 
 /**
- * As dicas são buscadas uma a uma, e não entregues junto com a fase, para que
- * abrir a terceira seja uma escolha do jogador em vez de um efeito colateral
- * de carregar a página.
+ * A dica é buscada sob demanda, e não entregue junto com a fase, para que
+ * abri-la seja uma escolha do jogador em vez de um efeito colateral de
+ * carregar a página — e para que não viaje no HTML de quem não pediu.
  */
-export async function revealHint(
-  index: number,
-  level: 1 | 2 | 3
-): Promise<string | null> {
-  return getPhase(index)?.hints[level - 1] ?? null
+export async function revealHint(index: number): Promise<string | null> {
+  return getPhase(index)?.hint ?? null
 }
 
 export async function revealSolution(index: number): Promise<string | null> {

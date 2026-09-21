@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { AnswerForm } from "@/components/answer-form"
-import { HintLadder } from "@/components/hint-ladder"
+import { HintPanel } from "@/components/hint-panel"
 import { getPhase } from "@/lib/phases"
 
 type Props = { params: Promise<{ n: string }> }
@@ -31,6 +31,17 @@ function commentMarkup(text: string) {
   return { __html: `<!-- ${text.replace(/--+/g, "-")} -->` }
 }
 
+/**
+ * Só `data-` e `aria-` passam. A fase declara os atributos do enunciado, e
+ * essa lista impede que um descuido no conteúdo vire um `onclick` ou um
+ * `style` no HTML servido.
+ */
+function safeAttributes(attributes: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(attributes).filter(([name]) => /^(data|aria)-[\w-]+$/.test(name))
+  )
+}
+
 export default async function PhasePage({ params }: Props) {
   const { n } = await params
   const index = parseIndex(n)
@@ -54,7 +65,12 @@ export default async function PhasePage({ params }: Props) {
         </h1>
       </header>
 
-      <p className="text-pretty leading-relaxed">{phase.prompt}</p>
+      <p
+        className="text-pretty leading-relaxed"
+        {...(phase.promptAttributes && safeAttributes(phase.promptAttributes))}
+      >
+        {phase.prompt}
+      </p>
 
       {phase.htmlComment && (
         <div dangerouslySetInnerHTML={commentMarkup(phase.htmlComment)} />
@@ -62,7 +78,7 @@ export default async function PhasePage({ params }: Props) {
 
       <AnswerForm index={phase.index} />
 
-      <HintLadder index={phase.index} />
+      <HintPanel index={phase.index} />
     </main>
   )
 }

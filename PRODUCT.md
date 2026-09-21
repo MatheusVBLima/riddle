@@ -43,8 +43,13 @@ fragmentos, nunca em blocos de exposição, e converge na fase 30.
 ## Regras que valem para toda fase
 
 - Resposta inequívoca. O jogador sabe quando achou.
-- Exatamente três níveis de dica: direção, mecânica, quase-solução. Depois
-  disso, uma opção separada revela a solução completa.
+- **Uma dica por fase**, e só uma. Como é o único empurrão antes da solução,
+  ela aponta direção e mecânica de uma vez. Atrás dela, uma opção separada
+  revela a solução completa.
+- Pista de marcação nas fases iniciais vai em atributo `data-`, que o DevTools
+  mostra formatado. Comentário de HTML fica para as fases avançadas: o Next
+  serve a página numa linha só, e no Ctrl+U um comentário é invisível na
+  prática.
 - Sem red herrings deliberados. Decorativo pode existir, mas tem que parecer
   claramente decorativo.
 - Sem dependência de ferramenta paga, plugin antigo ou site externo instável.

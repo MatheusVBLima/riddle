@@ -25,15 +25,29 @@ export type Phase = {
   answer: string
   /** Outras formas aceitas. A normalização já cobre caixa, acento e hífen. */
   accepts?: string[]
-  /** Exatamente três: direção, mecânica, quase-solução. */
-  hints: [string, string, string]
+  /**
+   * Uma dica só por fase. Ela é o único empurrão antes da solução, então
+   * aponta a direção e a mecânica de uma vez — não é o "nudge" vago que faria
+   * sentido se ainda viessem outras duas atrás.
+   */
+  hint: string
   solution: string
   /**
    * Comentário plantado no HTML da fase. Chega ao navegador e não é desenhado,
    * que é exatamente o ponto de várias fases. Declarado aqui para o autor da
    * fase não precisar mexer no componente da página.
+   *
+   * Cuidado: o Next serve a página inteira numa linha só, então um comentário
+   * é praticamente invisível no Ctrl+U. Serve para fases avançadas, em que o
+   * jogador já sabe procurar; nas primeiras, prefira `promptAttributes`.
    */
   htmlComment?: string
+  /**
+   * Atributos plantados no parágrafo do enunciado. Aparecem formatados e
+   * legíveis na aba Elements do DevTools, que é onde um jogador consegue
+   * mesmo achar uma pista de marcação.
+   */
+  promptAttributes?: Record<string, string>
 }
 
 /** O que pode chegar ao cliente sem estragar o enigma. */
@@ -52,11 +66,7 @@ const PHASES: Phase[] = [
       "Toda porta anuncia para onde leva. Esta também, e ela não está escondendo nada de você — só não está falando em voz alta.",
     answer: "destrancada",
     accepts: ["a porta esta destrancada", "unlocked"],
-    hints: [
-      "Você já reparou em tudo que o navegador está te mostrando agora?",
-      "A barra de endereço não é só onde a página mora. Ela faz parte do que você está lendo.",
-      "O endereço desta fase termina num nome. Leia esse nome como se fosse a última palavra da frase acima.",
-    ],
+    hint: "A barra de endereço não é só onde a página mora. Leia o fim dela como se fosse a última palavra da frase acima.",
     solution:
       "O slug da URL desta fase é a resposta. A frase fala de uma porta que não esconde nada: o endereço já dizia o estado dela.",
   },
@@ -65,18 +75,15 @@ const PHASES: Phase[] = [
     name: "Quem escreveu isto deixou de sair",
     difficulty: 2,
     prompt:
-      "Existe uma linha aqui que ninguém deveria ler. Ela não está apagada. Está apenas do lado de fora do que a página resolveu mostrar.",
+      "Você está lendo o que esta frase diz. Mas ninguém escreveu só a frase: em volta dela há instruções que o navegador cumpriu sem mostrar. Uma delas não é instrução nenhuma — é um bilhete.",
     answer: "margem",
     accepts: ["a margem", "margin"],
-    hints: [
-      "Nem tudo que o navegador recebe ele desenha na tela.",
-      "O código-fonte desta página tem mais texto do que a tela tem.",
-      "Procure por um comentário no HTML. Ele não está escondido, só não é renderizado.",
-    ],
+    hint: "Clique com o botão direito nesta frase e escolha Inspecionar. O que fica guardado junto de um parágrafo nem sempre é ordem para o navegador.",
     solution:
-      "Um comentário HTML no corpo da página carrega a palavra. Comentários chegam ao navegador e não são desenhados — a 'margem' do documento.",
-    htmlComment:
-      "quem escreve no que nao e lido escreve na margem",
+      "O parágrafo do enunciado carrega um atributo data-nota com o bilhete: quem escreve no que não é lido escreve na margem. Ele aparece formatado na aba Elements do DevTools.",
+    promptAttributes: {
+      "data-nota": "quem escreve no que nao e lido escreve na margem",
+    },
   },
 ]
 
