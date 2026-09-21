@@ -30,7 +30,7 @@ export function HintPanel({ index }: { index: number }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 border-t border-border pt-6">
+    <div className="phase-hints flex flex-col gap-4 border-t border-border pt-6">
       {hint && <p className="text-sm leading-relaxed">{hint}</p>}
 
       {solution && (

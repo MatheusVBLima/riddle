@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 118" role="img" aria-labelledby="titulo descricao">
+  <title id="titulo">Teclas de máquina de escrever</title>
+  <desc id="descricao">Três fileiras em QWERTY; uma tecla da fileira do meio está sem inscrição e tem uma pequena flor ao lado.</desc>
+  <defs>
+    <g id="tecla">
+      <rect width="24" height="22" rx="2" fill="#171719" stroke="#57544d"/>
+    </g>
+    <g id="flor" fill="#c9944f">
+      <ellipse cx="0" cy="-4" rx="1.5" ry="2.4"/>
+      <ellipse cx="0" cy="-4" rx="1.5" ry="2.4" transform="rotate(45)"/>
+      <ellipse cx="0" cy="-4" rx="1.5" ry="2.4" transform="rotate(90)"/>
+      <ellipse cx="0" cy="-4" rx="1.5" ry="2.4" transform="rotate(135)"/>
+      <ellipse cx="0" cy="-4" rx="1.5" ry="2.4" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-4" rx="1.5" ry="2.4" transform="rotate(225)"/>
+      <ellipse cx="0" cy="-4" rx="1.5" ry="2.4" transform="rotate(270)"/>
+      <ellipse cx="0" cy="-4" rx="1.5" ry="2.4" transform="rotate(315)"/>
+      <circle r="1.2"/>
+    </g>
+  </defs>
+  <g fill="#9d988c" font-family="monospace" font-size="11" text-anchor="middle">
+    <g transform="translate(38 8)">
+      <use href="#tecla"/><text x="12" y="15">Q</text>
+      <use href="#tecla" x="27"/><text x="39" y="15">W</text>
+      <use href="#tecla" x="54"/><text x="66" y="15">E</text>
+      <use href="#tecla" x="81"/><text x="93" y="15">R</text>
+      <use href="#tecla" x="108"/><text x="120" y="15">T</text>
+      <use href="#tecla" x="135"/><text x="147" y="15">Y</text>
+      <use href="#tecla" x="162"/><text x="174" y="15">U</text>
+      <use href="#tecla" x="189"/><text x="201" y="15">I</text>
+      <use href="#tecla" x="216"/><text x="228" y="15">O</text>
+      <use href="#tecla" x="243"/><text x="255" y="15">P</text>
+    </g>
+    <g transform="translate(54 38)">
+      <use href="#tecla"/>
+      <use href="#flor" x="12" y="11"/>
+      <use href="#tecla" x="27"/><text x="39" y="15">S</text>
+      <use href="#tecla" x="54"/><text x="66" y="15">D</text>
+      <use href="#tecla" x="81"/><text x="93" y="15">F</text>
+      <use href="#tecla" x="108"/><text x="120" y="15">G</text>
+      <use href="#tecla" x="135"/><text x="147" y="15">H</text>
+      <use href="#tecla" x="162"/><text x="174" y="15">J</text>
+      <use href="#tecla" x="189"/><text x="201" y="15">K</text>
+      <use href="#tecla" x="216"/><text x="228" y="15">L</text>
+    </g>
+    <g transform="translate(81 68)">
+      <use href="#tecla"/><text x="12" y="15">Z</text>
+      <use href="#tecla" x="27"/><text x="39" y="15">X</text>
+      <use href="#tecla" x="54"/><text x="66" y="15">C</text>
+      <use href="#tecla" x="81"/><text x="93" y="15">V</text>
+      <use href="#tecla" x="108"/><text x="120" y="15">B</text>
+      <use href="#tecla" x="135"/><text x="147" y="15">N</text>
+      <use href="#tecla" x="162"/><text x="174" y="15">M</text>
+    </g>
+  </g>
+</svg>

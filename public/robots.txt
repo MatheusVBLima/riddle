@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /porao
+
+# não é para você. é para elas.

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="t d">
+<title id="t">Disco de segredo</title>
+<desc id="d">Letras claras gravadas em ordem ao redor de um disco escuro.</desc>
+<circle cx="120" cy="120" r="91" fill="#111113" stroke="#57544d" stroke-width="1"/>
+<circle cx="120" cy="120" r="72" fill="none" stroke="#2b2a28"/>
+<g fill="#e9e4d8" font-family="monospace" font-size="11" text-anchor="middle" dominant-baseline="central">
+  <text x="120.00" y="20.00">A</text>
+  <text x="143.93" y="22.91">B</text>
+  <text x="166.47" y="31.45">C</text>
+  <text x="186.31" y="45.15">D</text>
+  <text x="202.30" y="63.19">E</text>
+  <text x="213.50" y="84.54">F</text>
+  <text x="219.27" y="107.95">G</text>
+  <text x="219.27" y="132.05">H</text>
+  <text x="213.50" y="155.46">I</text>
+  <text x="202.30" y="176.81">J</text>
+  <text x="186.31" y="194.85">K</text>
+  <text x="166.47" y="208.55">L</text>
+  <text x="143.93" y="217.09">M</text>
+  <text x="120.00" y="220.00">N</text>
+  <text x="96.07" y="217.09">O</text>
+  <text x="73.53" y="208.55">P</text>
+  <text x="53.69" y="194.85">Q</text>
+  <text x="26.50" y="155.46">S</text>
+  <text x="20.73" y="132.05">T</text>
+  <text x="20.73" y="107.95">U</text>
+  <text x="26.50" y="84.54">V</text>
+  <text x="37.70" y="63.19">W</text>
+  <text x="53.69" y="45.15">X</text>
+  <text x="73.53" y="31.45">Y</text>
+  <text x="96.07" y="22.91">Z</text>
+</g>
+<g transform="translate(51.69 167.15)" fill="#c9944f">
+  <ellipse cx="0" cy="-5" rx="2.2" ry="3.4" transform="rotate(0)"/><ellipse cx="0" cy="-5" rx="2.2" ry="3.4" transform="rotate(45)"/><ellipse cx="0" cy="-5" rx="2.2" ry="3.4" transform="rotate(90)"/><ellipse cx="0" cy="-5" rx="2.2" ry="3.4" transform="rotate(135)"/><ellipse cx="0" cy="-5" rx="2.2" ry="3.4" transform="rotate(180)"/><ellipse cx="0" cy="-5" rx="2.2" ry="3.4" transform="rotate(225)"/><ellipse cx="0" cy="-5" rx="2.2" ry="3.4" transform="rotate(270)"/><ellipse cx="0" cy="-5" rx="2.2" ry="3.4" transform="rotate(315)"/><circle r="1.8"/>
+</g>
+</svg>

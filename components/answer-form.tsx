@@ -23,7 +23,7 @@ export function AnswerForm({ index }: { index: number }) {
 
       if (outcome.status !== "correct") return
 
-      markSolved(index)
+      markSolved(index, outcome.answer)
       if (outcome.next) router.push(`/f/${outcome.next}`)
     })
   }
@@ -37,7 +37,7 @@ export function AnswerForm({ index }: { index: number }) {
   const solved = result?.status === "correct"
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-3">
+    <form onSubmit={onSubmit} className="answer-form flex flex-col gap-3">
       <div className="flex gap-2">
         <Input
           value={value}
@@ -61,6 +61,8 @@ export function AnswerForm({ index }: { index: number }) {
         className="min-h-5 text-sm text-muted-foreground"
       >
         {result?.status === "wrong" && "Não é isso. A pista ainda está na página."}
+        {result?.status === "rejected" && result.message}
+        {result?.status === "rate-limited" && "O arquivo não responde a pressa."}
         {result?.status === "empty" && "Escreva alguma coisa antes de enviar."}
         {solved && !result.next && "Você chegou ao fim do que existe até agora."}
         {solved && result.next && "Certo. Abrindo a próxima."}
