@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Skills instaladas via `npx skills add`. Código de terceiros, com scripts
+    // que quebram o eslint-plugin-react — não é fonte deste projeto.
+    ".agents/**",
   ]),
 ]);
 
