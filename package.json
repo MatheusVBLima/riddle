@@ -14,6 +14,7 @@
     "assets:archive": "bun --conditions=react-server scripts/generate-archive-assets.ts",
     "assets:attic": "bun scripts/generate-attic-assets.ts",
     "assets:notebook": "bun scripts/generate-notebook-pages.ts",
+    "assets:dante": "bun scripts/generate-dante-assets.ts",
     "test:meta": "bun --conditions=react-server scripts/verify-meta-invariants.ts",
     "test:bundle": "bun --conditions=react-server scripts/verify-client-bundle.ts",
     "typecheck": "tsc --noEmit"

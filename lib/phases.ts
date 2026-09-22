@@ -1,535 +1,571 @@
 import "server-only"
 
-import {
-  LACUNAS,
-  META_FINAL_ANSWER,
-  META_I_ANSWER,
-  META_II_ANSWER,
-  RESPOSTAS_1_9,
-} from "@/lib/canon"
+import { FINAL_LETTERS, META_TRANSITIONS, type Cantica } from "@/lib/canon"
 import { normalizeAnswer } from "@/lib/normalize"
-
-/**
- * O conteúdo das fases vive só no servidor.
- *
- * Isso não é zelo genérico: neste jogo o HTML entregue ao navegador é parte do
- * enigma, e o jogador é explicitamente incentivado a ler o source. Se as
- * respostas e as dicas viajassem no bundle, todas as 30 fases seriam
- * resolvíveis com um Ctrl+U. As pistas plantadas são visíveis de propósito; o
- * gabarito, nunca.
- */
 
 export type Difficulty = 1 | 2 | 3 | 4 | 5
 
+export type ArtifactKind =
+  | "gate"
+  | "limbo"
+  | "wind"
+  | "rain"
+  | "weights"
+  | "river"
+  | "flame"
+  | "tombs"
+  | "blood"
+  | "ice"
+  | "inferno-meta"
+  | "shore"
+  | "marble"
+  | "eyes"
+  | "smoke"
+  | "race"
+  | "earth"
+  | "fruit"
+  | "fire"
+  | "garden"
+  | "purgatorio-meta"
+  | "moon"
+  | "mercury"
+  | "venus"
+  | "sun"
+  | "cross"
+  | "eagle"
+  | "ladder"
+  | "virtues"
+  | "angels"
+  | "paradiso-meta"
+
 export type Phase = {
   index: number
-  /** Nome da fase. Aparece como título da aba, então pode carregar pista. */
   name: string
-  /** Título literal da aba quando a fase usa metadados como pista. */
   tabTitle?: string
-  /** Descrição literal do documento; também pode conter uma pista. */
   description?: string
-  /** Ilustração sem dados de resposta, renderizada no componente servidor. */
-  media?:
-    | "map"
-    | "mineral"
-    | "audio04"
-    | "album"
-    | "audio06"
-    | "last-buzz"
-    | "thermometer"
-    | "calculator"
-    | "notebook"
-    | "meta10"
-    | "ogham"
-    | "red-channel"
-    | "compass"
-    | "transmission"
-    | "floor-plan"
-    | "cellar-entry"
-    | "press"
-    | "spectrogram"
-    | "pocket"
-    | "meta20"
-    | "print"
-    | "archive-path"
-    | "calendar-strip"
-    | "difference"
-    | "nautical-chart"
-    | "return"
-    | "manuscript"
-    | "page-without-number"
-    | "eve"
-    | "meta-final"
+  cantica: Cantica
+  unit: string
+  artifact: ArtifactKind
   difficulty: Difficulty
-  /** Fragmento de narrativa ou enunciado. O que o jogador lê ao chegar. */
   prompt: string
-  /** Resposta canônica, como seria escrita por extenso. */
   answer: string
-  /** Outras formas aceitas. A normalização já cobre caixa, acento e hífen. */
   accepts?: string[]
-  /** Respostas previsíveis com retorno específico, sempre por comparação exata. */
-  specialRejects?: { terms: string[]; message: string }
-  /**
-   * Uma dica só por fase. Ela é o único empurrão antes da solução, então
-   * aponta a direção e a mecânica de uma vez — não é o "nudge" vago que faria
-   * sentido se ainda viessem outras duas atrás.
-   */
   hint: string
   solution: string
-  /**
-   * Comentário plantado no HTML da fase. Chega ao navegador e não é desenhado,
-   * que é exatamente o ponto de várias fases. Declarado aqui para o autor da
-   * fase não precisar mexer no componente da página.
-   *
-   * Cuidado: o Next serve a página inteira numa linha só, então um comentário
-   * é praticamente invisível no Ctrl+U. Serve para fases avançadas, em que o
-   * jogador já sabe procurar; nas primeiras, prefira `promptAttributes`.
-   */
-  htmlComment?: string
-  /**
-   * Atributos plantados no parágrafo do enunciado. Aparecem formatados e
-   * legíveis na aba Elements do DevTools, que é onde um jogador consegue
-   * mesmo achar uma pista de marcação.
-   */
+  /** Termos usados na revisão de fontes. Nunca são passados ao cliente. */
+  researchTerms: string[]
+  /** Referência editorial interna. Nunca é passada ao cliente. */
+  reference: string
+  /** Nome explícito da unidade estrutural da obra. Mantido no servidor. */
+  unidadeEstrutural: string
+  /** Âncoras que orientaram a pesquisa editorial. Mantido no servidor. */
+  temaDePesquisa: string[]
+  /** Grafias e formas alternativas aceitas na resposta. Mantido no servidor. */
+  variantesAceitas: string[]
+  /** Referências usadas para verificar a autoria da fase. Mantido no servidor. */
+  referenciasVerificacao: string
   promptAttributes?: Record<string, string>
 }
 
-/** O que pode chegar ao cliente sem estragar o enigma. */
-export type PhaseMeta = Pick<Phase, "index" | "name" | "difficulty" | "prompt">
+type PhaseDraft = Omit<
+  Phase,
+  "unidadeEstrutural" | "temaDePesquisa" | "variantesAceitas" | "referenciasVerificacao"
+>
 
-/**
- * Registro das fases. Conteúdo congelado (01, 11–19 e páginas com lacuna)
- * deve ser alterado apenas junto dos pares/meta correspondentes.
- */
-const PHASES: Phase[] = [
+export type PhaseMeta = Pick<Phase, "index" | "name" | "difficulty" | "prompt" | "cantica" | "unit">
+
+const PHASE_DRAFTS: PhaseDraft[] = [
   {
     index: 1,
-    name: "A janela",
-    difficulty: 1,
-    tabTitle: "vigília · quarto crescente",
-    description: "29 dias, 12 horas, 44 minutos.",
-    prompt: "você chegou cedo.\neu deixo a luz acesa na janela — ela não é minha.\nela só passa por aqui, some, e volta.\nsempre no mesmo dia.",
-    htmlComment: "registro 01",
-    answer: RESPOSTAS_1_9["01"],
-    accepts: ["a lua"],
-    hint: "A página não é só o que está no meio da tela: o nome da aba faz parte do enigma. E aquele arco fino no canto é desenho, não borda.",
-    solution:
-      "O título da aba é vigília · quarto crescente. O arco no canto superior direito é um crescente. O texto descreve uma luz emprestada que aparece e desaparece num ciclo fixo, e a descrição da página traz a duração do mês sinódico. A resposta é LUA.",
+    name: "O primeiro círculo",
+    tabTitle: "vigília · onde a luz não chega",
+    description: "uma porta, uma floresta e nove descidas.",
+    cantica: "inferno",
+    unit: "limbo",
+    artifact: "limbo",
+    difficulty: 2,
+    prompt: "a selva ficou para trás.\nagora há um castelo sem tormento, mas também sem esperança.\nquatro sombras caminham ao redor de um quinto homem, que carrega uma cidade inteira na voz.\nqual é o lugar onde eles permanecem?",
+    answer: "LIMBO",
+    accepts: ["primeiro círculo", "círculo primeiro"],
+    hint: "Pesquise os quatro poetas antigos que Dante encontra no primeiro círculo e descubra o nome dado a esse lugar.",
+    solution: "Virgílio conduz Dante pelo Limbo, onde estão almas virtuosas que não receberam o batismo. O castelo e os quatro poetas são sinais do primeiro círculo: LIMBO.",
+    researchTerms: ["Dante Limbo castelo quatro poetas", "Inferno canto IV"],
+    reference: "Inf. IV",
   },
   {
     index: 2,
-    name: "O desenho do lugar",
-    tabTitle: "vigília · registro 02",
-    difficulty: 1,
-    prompt: "isto não é o lugar.\né o desenho do lugar.",
-    answer: RESPOSTAS_1_9["02"],
-    accepts: ["um mapa", "o mapa", "carta", "carta geografica"],
-    hint: "Estas formas têm nome, e quem as nomeou escreveu dentro do arquivo. Abra o código da página — ou passe o mouse devagar sobre cada forma.",
-    solution:
-      "O SVG nomeia cada forma com um termo de geografia física e declara uma escala cartográfica no próprio title. As linhas paralelas são curvas de nível. O desenho de um lugar, em escala, com relevo, é um MAPA. A régua alfabética da borda e a flor ao lado dela não têm função nesta fase.",
-    media: "map",
+    name: "A corrente de ar",
+    tabTitle: "vigília · dois nomes no escuro",
+    cantica: "inferno",
+    unit: "luxúria",
+    artifact: "wind",
+    difficulty: 2,
+    prompt: "eles chegam em pares, mas nunca pousam.\num livro aberto separou dois nomes que não deveriam estar juntos.\na pergunta não é quem amou: é quem foi arrastado pela mesma corrente.",
+    answer: "FRANCESCA",
+    accepts: ["francesca da rimini", "francesca de rimini", "francesca rimini"],
+    hint: "Procure o casal que conta sua história no círculo dos luxuriosos. A corrente de ar é o contrapasso, e a fala traz o nome de apenas uma das duas pessoas.",
+    solution: "Francesca da Rimini e Paolo Malatesta são arrastados pelo vendaval dos luxuriosos. A voz que narra o episódio é Francesca; a resposta é FRANCESCA.",
+    researchTerms: ["Dante Francesca Paolo vento Inferno V", "contrapasso luxuriosos"],
+    reference: "Inf. V",
   },
   {
     index: 3,
-    name: "A caixa das coisas que enganam",
-    tabTitle: "vigília · dureza 6 a 6,5",
+    name: "A chuva que não lava",
+    tabTitle: "vigília · três bocas",
+    cantica: "inferno",
+    unit: "gula",
+    artifact: "rain",
     difficulty: 2,
-    prompt:
-      "ele guardava uma caixa de coisas que enganam.\nesta foi a primeira, e ficou sendo a favorita.",
-    answer: RESPOSTAS_1_9["03"],
-    accepts: ["a pirita", "pyrite"],
-    hint: "É um mineral, e faltam dados para escolher um só. Eles estão no nome da aba e na descrição da imagem, a que aparece no código-fonte e para quem usa leitor de tela.",
-    solution:
-      "Os atributos estão repartidos entre o título da aba (dureza 6–6,5) e o alt da imagem (hábito cúbico com faces estriadas, brilho metálico amarelo-latão, risca preto-esverdeada, densidade 5,0, sem clivagem). O único mineral comum que reúne todos é a PIRITA — o “ouro dos tolos”, que é justamente a coisa que engana.",
-    media: "mineral",
+    prompt: "a chuva cai sem parar, mas não limpa nada.\num animal de três gargantas guarda o caminho.\num homem que já foi cidadão reconhece o visitante e fala de uma cidade que ainda não existe.",
+    answer: "CÉRBERO",
+    accepts: ["cerbero", "cerberus"],
+    hint: "O guardião tem três cabeças e aparece no círculo da gula. Pesquise o nome latino e o nome usado nas traduções portuguesas.",
+    solution: "A chuva imunda e a fome interminável pertencem ao terceiro círculo. Cérbero, o cão de três cabeças, guarda os gulosos. A resposta é CÉRBERO.",
+    researchTerms: ["Dante Cerbero Ciacco círculo gula", "Inferno VI"],
+    reference: "Inf. VI",
   },
   {
     index: 4,
-    name: "Quatro e doze",
-    tabTitle: "vigília · 04:12",
-    difficulty: 2,
-    prompt:
-      "ele não conseguia dormir por causa disto.\nbastava uma volta e meia para o silêncio voltar.\nele nunca dava.",
-    answer: RESPOSTAS_1_9["04"],
-    accepts: ["a torneira", "torneira pingando", "uma torneira"],
-    hint: "Som e texto dizem coisas diferentes: o som diz o que está acontecendo, o texto diz qual objeto está fazendo aquilo. Releia o texto com atenção.",
-    solution:
-      "A gravação tem dez gotas em intervalo de 2,4 s, de madrugada. A frase “bastava uma volta e meia para o silêncio voltar” descarta goteira e vazamento: o objeto é acionado por rotação. Resposta: TORNEIRA.",
-    media: "audio04",
+    name: "O peso de Pluto",
+    tabTitle: "vigília · a roda sem ponteiro",
+    cantica: "inferno",
+    unit: "avareza",
+    artifact: "weights",
+    difficulty: 3,
+    prompt: "duas procissões empurram o mesmo peso em direções contrárias.\nninguém sabe dizer onde começa o círculo.\num nome antigo vigia as riquezas, mas a palavra que interessa está no mecanismo que nunca chega a lugar algum.",
+    answer: "PLUTÃO",
+    accepts: ["pluto", "plutao", "pluto inferno"],
+    hint: "Pesquise o quarto círculo e o demônio que o guarda. Relacione a disputa entre avarentos e pródigos ao nome mitológico do guardião.",
+    solution: "No quarto círculo, avarentos e pródigos carregam pesos e se acusam mutuamente. Pluto, também chamado Plutão em português, é a figura que guarda esse círculo. A resposta é PLUTÃO.",
+    researchTerms: ["Dante quarto círculo Pluto avarentos pródigos", "Inferno VII"],
+    reference: "Inf. VII",
   },
   {
     index: 5,
-    name: "Onde as fotos estavam",
-    tabTitle: "vigília · registro 05",
-    difficulty: 2,
-    prompt:
-      "as fotos não estão aqui.\no lugar delas está.\nas legendas foram datilografadas.",
-    answer: RESPOSTAS_1_9["05"],
-    accepts: ["o album", "um album", "album de fotos", "album de fotografias"],
-    hint: "Clique num dos retângulos vazios e olhe o endereço da página: ele aceita um número. Troque esse número e leia as doze legendas.",
-    solution:
-      "Clicar num retângulo acrescenta ?p=1 à URL e revela uma legenda. Variando p de 1 a 12, aparecem doze legendas que descrevem páginas, cantos, papel de seda e ordem de colagem. O objeto é um ÁLBUM de fotografias. A fileira de teclas com uma tecla em branco não faz parte desta fase.",
-    media: "album",
+    name: "O pântano sem margem",
+    tabTitle: "vigília · aquilo que afunda",
+    cantica: "inferno",
+    unit: "ira",
+    artifact: "river",
+    difficulty: 3,
+    prompt: "a água não reflete o céu.\nalguns dentes aparecem acima da superfície; outros rostos afundam de propósito.\num homem de Argenti atravessa o episódio como uma faísca que não se apaga.",
+    answer: "ESTIGE",
+    accepts: ["stix", "styx", "rio estige", "estígio"],
+    hint: "O nome do pântano vem da mitologia grega e é usado no quinto círculo. Busque a grafia em português e a grafia original.",
+    solution: "O quinto círculo é o pântano Estige, onde os iracundos brigam na lama e os rancorosos permanecem submersos. Filippo Argenti aparece nesse trecho. A resposta é ESTIGE.",
+    researchTerms: ["Dante Estige Filippo Argenti quinto círculo", "Inferno VIII"],
+    reference: "Inf. VIII",
   },
   {
     index: 6,
-    name: "O último barulho",
-    tabTitle: "vigília · registro 06",
+    name: "As tumbas abertas",
+    tabTitle: "vigília · o que a pedra sabe",
+    cantica: "inferno",
+    unit: "heresia",
+    artifact: "tombs",
     difficulty: 3,
-    prompt:
-      "z. removeu tudo que fazia barulho.\neste foi o último a sair.\na gravação está na velocidade do tempo dele: oito vezes mais devagar.",
-    answer: RESPOSTAS_1_9["06"],
-    accepts: ["a campainha", "campainha da porta", "campainha eletrica"],
-    hint: "A foto mostra o lugar de onde um objeto foi tirado; o áudio é a voz dele. A página diz em que velocidade a gravação está — e tem um controle para corrigir isso.",
-    solution:
-      "Acelerando o áudio em 8× ouvem-se duas notas metálicas descendentes com 0,32 s entre elas — um din-don. A foto mostra dois furos de parafuso, um círculo de tinta mais clara e dois fios cortados ao lado da porta. O objeto removido é a CAMPAINHA.",
-    media: "last-buzz",
+    prompt: "as tampas estão levantadas.\nquem está dentro enxerga o futuro e não enxerga o presente.\num homem de Florença se ergue acima da pedra como se ainda disputasse uma praça.",
+    answer: "FARINATA",
+    accepts: ["farinata degli uberti", "farinata degli uberti", "farinata degli Uberti"],
+    hint: "Pesquise as tumbas ardentes dos heréticos e identifique o florentino que se levanta sozinho para falar com Dante.",
+    solution: "Farinata degli Uberti aparece entre os hereges, dentro de um sepulcro em chamas. Ele reconhece Dante e discute a política de Florença. A resposta é FARINATA.",
+    researchTerms: ["Dante Farinata tombas ardentes heréticos", "Inferno X"],
+    reference: "Inf. X",
   },
   {
     index: 7,
-    name: "Entre menos trinta e nove e trezentos e cinquenta e sete",
-    tabTitle: "vigília · às sete",
-    difficulty: 3,
-    prompt:
-      "o líquido dele começava aqui e terminava aqui.\nfora disso, ele não servia para nada.\nele anotava às sete da manhã, todo dia, mesmo quando não havia motivo:\n36,6 · 37,0 · 36,8 · 38,9 · 37,2 · 41,2 · 36,6",
-    answer: RESPOSTAS_1_9["07"],
-    accepts: ["o termometro", "um termometro", "termometro de mercurio"],
-    hint: "Os dois números das pontas são propriedades de uma substância específica: duas casas decimais não se inventam. Procure o que derrete a −38,83 °C e ferve a 356,73 °C.",
-    solution:
-      "−38,83 °C e 356,73 °C são o ponto de fusão e o de ebulição do mercúrio; entre eles o metal é líquido, que é a faixa útil do instrumento. A lista de 36,6 a 41,2 registrada todo dia às sete é temperatura corporal. O objeto é um TERMÔMETRO de mercúrio.",
-    media: "thermometer",
+    name: "O sangue que ferve",
+    tabTitle: "vigília · nenhum mergulho",
+    cantica: "inferno",
+    unit: "violência",
+    artifact: "blood",
+    difficulty: 4,
+    prompt: "a margem não é margem: é um limite imposto pela altura.\nquem tentou dominar pela força agora fica medido pelo próprio sangue.\num guardião com corpo misturado impede que a travessia seja curta.",
+    answer: "MINOTAURO",
+    accepts: ["minotauro", "minotaur"],
+    hint: "Pesquise o primeiro giro do círculo dos violentos. O guardião é metade homem e metade touro, e a paisagem é o rio de sangue fervente.",
+    solution: "O Minotauro guarda a entrada do círculo da violência. No rio Flegetonte, os violentos contra o próximo são mergulhados conforme o grau da culpa, sob vigilância dos centauros. A resposta é MINOTAURO.",
+    researchTerms: ["Dante Minotauro Flegetonte centauros", "Inferno XII"],
+    reference: "Inf. XII",
   },
   {
     index: 8,
-    name: "O teclado apagado",
-    tabTitle: "vigília · registro 08",
-    difficulty: 3,
-    prompt:
-      "ele só confiava numa coisa, porque ela nunca discutia.\no teclado está aqui. só não está aceso.",
-    answer: RESPOSTAS_1_9["08"],
-    accepts: ["a calculadora", "uma calculadora", "maquina de calcular"],
-    hint: "A frase sobre o teclado é literal: ele existe nesta página. Abra o código-fonte (ou o inspetor) e procure o bloco marcado como oculto.",
-    solution:
-      "No DOM há uma div oculta com as vinte teclas de uma calculadora de mesa — incluindo MR, M+ e % — e o CSS descreve o 0 largo e o + alto. Com o visor de sete segmentos na tela, o objeto é uma CALCULADORA. O disco com letras na margem não faz parte desta fase.",
-    media: "calculator",
+    name: "A chama dupla",
+    tabTitle: "vigília · duas vozes numa ponta",
+    cantica: "inferno",
+    unit: "fraude",
+    artifact: "flame",
+    difficulty: 4,
+    prompt: "duas línguas falam dentro de uma única luz.\num homem pede que a chama seja lembrada por uma cidade distante.\na rota foi desenhada com astros, mas a saída nunca foi autorizada.",
+    answer: "ULISSES",
+    accepts: ["odisseu", "ulisse", "ulysses"],
+    hint: "Busque a chama dupla do oitavo círculo e o viajante que convence os companheiros a ultrapassar o limite conhecido.",
+    solution: "Ulisses e Diomedes estão presos na mesma chama entre os conselheiros fraudulentos. O discurso da viagem além das colunas de Hércules identifica ULISSES.",
+    researchTerms: ["Dante chama dupla Ulisses Diomedes", "Inferno XXVI"],
+    reference: "Inf. XXVI",
   },
   {
     index: 9,
-    name: "O verso",
-    tabTitle: "vigília · registro 09",
-    difficulty: 4,
-    prompt:
-      "o resto está no verso.\nele escrevia com força demais — o que ele apagava, a folha de baixo guardava.\na imagem está no arquivo pagina-03; o nome aparece no código-fonte e ao clicar com o botão direito.",
-    answer: RESPOSTAS_1_9["09"],
-    accepts: ["o caderno", "um caderno", "caderno pautado", "caderno de capa dura"],
-    hint: "A folha não está em branco, está sem tinta — use o controle embaixo dela. E repare no nome do arquivo: se esta é a página 03, onde estão as outras duas?",
-    solution:
-      "O controle luz rasante aumenta o contraste e revela as marcas de pressão. A imagem mostrada é pagina-03.webp; pedindo pagina-01.webp e pagina-02.webp no mesmo diretório aparecem as outras duas folhas. Juntas, dão a ficha do objeto: capa dura, 95 folhas, pauta de 8 mm, costurado, 14 × 20 cm. É um CADERNO.",
-    media: "notebook",
+    name: "O gelo abaixo",
+    tabTitle: "vigília · a boca que mastiga",
+    cantica: "inferno",
+    unit: "traição",
+    artifact: "ice",
+    difficulty: 5,
+    prompt: "o último círculo não tem fogo.\num pai conta uma fome que virou calendário.\nno centro, três rostos mastigam três condenados; o maior deles tem asas e não consegue sair.",
+    answer: "UGOLINO",
+    accepts: ["conde ugolino", "ugolino della gherardesca", "conte ugolino"],
+    hint: "Pesquise a torre, a fome e o lago congelado do nono círculo. A resposta é o pai que narra a história, não o ser no centro do gelo.",
+    solution: "O conde Ugolino aparece no gelo do círculo dos traidores e conta o episódio da torre e da fome. Lúcifer está no centro, mas a pergunta aponta para o narrador humano: UGOLINO.",
+    researchTerms: ["Dante Ugolino torre fome lago Cocito", "Inferno XXXII XXXIII"],
+    reference: "Inf. XXXII–XXXIII",
   },
   {
     index: 10,
-    name: "O corredor",
-    tabTitle: "vigília · nove portas",
-    difficulty: 4,
-    prompt:
-      "nove portas, nove medidas.\nnão há duas iguais. isso nunca foi por acaso.",
-    answer: META_I_ANSWER,
-    accepts: ["o labirinto", "um labirinto"],
-    hint: "Conte as caixas de cada fileira e conte as letras de cada resposta que você já deu. Depois ordene as respostas por comprimento, não por fase.",
-    solution:
-      "Ordene as nove respostas pelo comprimento, de 3 a 11 letras. Em cada palavra, pegue a letra indicada pela fileira correspondente: LUA, MAPA, ÁLBUM, PIRITA, CADERNO, TORNEIRA, CAMPAINHA, TERMÔMETRO e CALCULADORA. A diagonal soletra LABIRINTO, nome da casa.",
-    media: "meta10",
+    name: "A ponte para cima",
+    tabTitle: "vigília · nove círculos",
+    cantica: "inferno",
+    unit: "meta do Inferno",
+    artifact: "inferno-meta",
+    difficulty: 5,
+    prompt: "nove respostas vieram de nove profundidades.\na porta seguinte não está embaixo.\nordene o que você encontrou pela posição estrutural, e não pela ordem em que chegou.",
+    answer: META_TRANSITIONS[10],
+    accepts: ["purgatorio", "purgatório"],
+    hint: "Liste as nove unidades do Inferno na ordem dos círculos e extraia as letras marcadas no diagrama concêntrico.",
+    solution: "As respostas das fases 1 a 9 correspondem aos círculos em ordem. O diagrama entrega PURGATÓRIO, a próxima cantica da viagem.",
+    researchTerms: ["Dante nove círculos Inferno ordem", "Dante viagem Inferno Purgatório transição"],
+    reference: "meta infernal",
   },
-  // REGISTROS 11–19: conteúdo congelado pelo meta da errata (fase 20).
   {
     index: 11,
-    name: "A pedra em pé",
-    tabTitle: "vigília · de baixo para cima",
-    difficulty: 3,
-    prompt:
-      "ele copiou isto de uma pedra em pé, num invenno que passou fora.\nescreveu embaixo: “a hora em que isto começou”.\naquele inverno ele ainda dormia.",
-    answer: "MADRUGADA",
-    accepts: ["a madrugada", "de madrugada"],
-    hint: "Isto é escrita, não desenho: um alfabeto antigo de traços contados em relação a uma linha central, gravado em pedras verticais. O nome da aba diz em que direção se lê.",
-    solution:
-      "A inscrição está em ogham, lida de baixo para cima. Os nove grupos transliteram M-A-D-R-U-G-A-D-A: MADRUGADA, a hora em que isto começou.",
-    media: "ogham",
+    name: "A praia sem sombras",
+    tabTitle: "vigília · antes da montanha",
+    cantica: "purgatorio",
+    unit: "antepurgatório",
+    artifact: "shore",
+    difficulty: 2,
+    prompt: "a viagem muda de direção.\num homem severo guarda a praia, mas não leva nenhuma alma para cima.\nas margens há uma regra: ninguém passa sem saber por que está ali.",
+    answer: "CATÃO",
+    accepts: ["cato", "catone", "catão de útica", "catão de utica"],
+    hint: "Pesquise quem guarda a entrada do Purgatório e por que Dante escolhe uma figura romana para essa função.",
+    solution: "Catão de Útica vigia a praia do Purgatório. A figura representa liberdade e exige que Dante se prepare para a subida. A resposta é CATÃO.",
+    researchTerms: ["Dante Catão praia Purgatório", "Purgatorio I"],
+    reference: "Purg. I–II",
   },
   {
     index: 12,
-    name: "Só o vermelho",
-    tabTitle: "vigília · registro 12",
+    name: "O peso que se vê",
+    tabTitle: "vigília · de cabeça baixa",
+    cantica: "purgatorio",
+    unit: "orgulho",
+    artifact: "marble",
     difficulty: 3,
-    prompt:
-      "o relóoio da sala ficou parado em 1997.\neste é anterior a qualquer relógio que você conhece.\nsó o vermelho dele estava certo.",
-    answer: "CLEPSIDRA",
-    accepts: ["a clepsidra", "uma clepsidra", "relogio de agua"],
-    hint: "Há um desenho inteiro dentro da imagem, e o texto diz em qual cor. Use os botões logo abaixo dela.",
-    solution:
-      "Isolando o canal vermelho aparece um relógio de água: vaso superior gotejando por um orifício para um vaso graduado de doze marcas, com uma ampulheta riscada ao lado. O nome do instrumento é CLEPSIDRA. A fita de calibração não faz parte desta fase.",
-    media: "red-channel",
+    prompt: "a parede conta histórias sem usar voz.\nfiguras de pedra descem o olhar para ensinar uma medida.\nno caminho, uma letra é retirada da testa de quem sobe.",
+    answer: "ORGULHO",
+    accepts: ["soberba", "soberbia"],
+    hint: "Pesquise o primeiro terraço e as esculturas que funcionam como exemplos contra a soberba. A letra gravada em Dante também é uma pista.",
+    solution: "O primeiro terraço purga o orgulho. As esculturas mostram exemplos de humildade e o anjo remove a primeira letra da marca na testa de Dante. A resposta é ORGULHO.",
+    researchTerms: ["Dante primeiro terraço orgulho esculturas P", "Purgatorio X XII"],
+    reference: "Purg. X–XII",
   },
   {
     index: 13,
-    name: "Todos os lados",
-    tabTitle: "vigília · vinte e quatro em um",
-    difficulty: 4,
-    prompt:
-      "ele guardava o mapa deste lugar dentro do covre, e não no cofre da sala.\nescreveu atrás:\n\n“daqui, ande para onde quiser: você sempre desce.\no dia dura seis meses e a noite dura seis meses.\ne há uma estrela que não sai do lugar, exatamente em cima.”",
-    answer: "POLO NORTE",
-    accepts: ["o polo norte", "polo norte geografico", "norte geografico"],
-    hint: "Todas as oito pontas da rosa dos ventos dizem a mesma coisa. Há dois lugares no planeta onde isso é verdade, e o texto traz uma frase que serve só para escolher entre os dois.",
-    solution:
-      "Um ponto onde todas as direções são o sul só pode ser um polo; o círculo de 24 marcas convergentes confirma. Seis meses de dia e seis de noite valem para ambos. A estrela imóvel no zênite é a Polar, que ocupa essa posição apenas no POLO NORTE.",
-    media: "compass",
+    name: "Os olhos fechados",
+    tabTitle: "vigília · a cor do fio",
+    cantica: "purgatorio",
+    unit: "inveja",
+    artifact: "eyes",
+    difficulty: 3,
+    prompt: "ninguém olha para a paisagem.\num fio prende as pálpebras, e a roupa tem a cor daquilo que se acumula quando o outro recebe luz.\nvozes pedem ajuda sem poder apontar.",
+    answer: "INVEJA",
+    accepts: ["invidia", "invidia purgatorio"],
+    hint: "Busque o terraço em que os olhos são costurados e relacione a cor das vestes ao vício purgado.",
+    solution: "No segundo terraço, os invejosos têm os olhos costurados com arame e vestem uma cor que lembra a inveja. A resposta é INVEJA.",
+    researchTerms: ["Dante olhos costurados arame segundo terraço", "Purgatorio XIII"],
+    reference: "Purg. XIII",
   },
   {
     index: 14,
-    name: "Pesa mais do que toca",
-    tabTitle: "vigília · registro 14",
-    difficulty: 4,
-    prompt:
-      "arquivo    transmissao.wav\nduração    00:00:03\ntamanho    2 118 744 bytes\nessinatura  Z.\n\nele pesava tudo antes de guardar. esta caixa pesa mais do que toca.\na assinatura está no fim, como sempre.",
-    answer: "ADEGA",
-    accepts: ["a adega", "uma adega"],
-    hint: "Compare a duração com o tamanho, na ficha do arquivo. Há algo guardado depois do fim do som: baixe o arquivo e tente abri-lo como um arquivo compactado.",
-    solution:
-      "O WAV tem três segundos de áudio em um arquivo de 2 118 744 bytes: depois do áudio há um ZIP anexado. Dentro dele, pauta.svg traz cinco semibreves — lá, ré, mi, sol, lá. Em notação por letras: A, D, E, G, A. A resposta é ADEGA.",
-    media: "transmission",
+    name: "A fumaça",
+    tabTitle: "vigília · uma voz dentro da névoa",
+    cantica: "purgatorio",
+    unit: "ira",
+    artifact: "smoke",
+    difficulty: 3,
+    prompt: "a montanha desaparece sem mudar de lugar.\na visão fica branca, e a conversa precisa atravessar o ar.\num homem explica que a ordem do mundo não nasce da culpa dos astros.",
+    answer: "IRA",
+    accepts: ["ira", "cólera", "colera"],
+    hint: "Pesquise a fumaça do terceiro terraço e o diálogo de Marco Lombardo sobre liberdade e desejo.",
+    solution: "A fumaça espessa do terceiro terraço impede a visão dos iracundos. Marco Lombardo conversa com Dante sobre livre-arbítrio. A resposta é IRA.",
+    researchTerms: ["Dante Marco Lombardo fumaça terceiro terraço", "Purgatorio XV XVI"],
+    reference: "Purg. XV–XVI",
   },
   {
     index: 15,
-    name: "O cômodo sem porta",
-    tabTitle: "vigília · registro 15",
-    difficulty: 4,
-    prompt:
-      "ele dormia no cômodo que não tem porta.\na garrava de água ficava do lado de fora, no chão, porque lá dentro não cabia nada.\na garrafa continua lá.",
-    answer: "ALÇAPÃO",
-    accepts: ["alcapao", "o alcapao", "um alcapao"],
-    hint: "“O cômodo que não tem porta” é literal: procure o único com as paredes sem nenhuma interrupção. A coordenada dele serve para consultar a tabela que está logo abaixo da planta.",
-    solution:
-      "Na planta, o único cômodo com as quatro paredes contínuas é o de coordenada F7. No inventário de 10 × 10 logo abaixo, a célula F7 diz alçapão: a entrada é pelo chão. A coluna sem rótulo e a flor ao lado não pertencem a esta fase.",
-    media: "floor-plan",
+    name: "A corrida",
+    tabTitle: "vigília · tarde demais",
+    cantica: "purgatorio",
+    unit: "preguiça",
+    artifact: "race",
+    difficulty: 3,
+    prompt: "eles não caminham.\ncorrem como se cada minuto tivesse peso.\na antiga demora é lembrada como uma dívida, e a montanha oferece a mesma pergunta a todos.",
+    answer: "PREGUIÇA",
+    accepts: ["acídia", "acidia", "sloth"],
+    hint: "Pesquise o terraço dos lentos demais para amar e o castigo que transforma a demora em movimento contínuo.",
+    solution: "O quarto terraço purga a acídia, entendida como falta de amor e demora espiritual. As almas correm sem descanso. Em português corrente, a resposta é PREGUIÇA.",
+    researchTerms: ["Dante Purgatório acídia correm quarto terraço", "Purgatorio XVII XVIII"],
+    reference: "Purg. XVII–XVIII",
   },
   {
     index: 16,
-    name: "O bilhete para as máquinas",
-    tabTitle: "vigília · elas obedecem",
-    difficulty: 4,
-    prompt:
-      "não há link para o porão. nunca houve.\nz. escreveu um bilhete para as máquinas que passam por aqui,\npedindo que não descessem. as máquinas obedecem.\nna geveta da entrada ficava a lanterna; a gaveta está vazia.",
-    answer: "HERBÁRIO",
-    accepts: ["herbario", "o herbario", "um herbario"],
-    hint: "O texto descreve o arquivo que todo site escreve para robôs de busca, dizendo onde não entrar. Abra-o no endereço do jogo.",
-    solution:
-      "O bilhete para as máquinas é o robots.txt, que traz Disallow: /porao. Em /porao há estantes de plantas prensadas entre vidros, etiquetadas e numeradas: um HERBÁRIO. A moldura vazia etiquetada ausente e as oito pétalas não resolvem nada aqui.",
-    media: "cellar-entry",
+    name: "De bruços",
+    tabTitle: "vigília · o olhar no chão",
+    cantica: "purgatorio",
+    unit: "avareza",
+    artifact: "earth",
+    difficulty: 3,
+    prompt: "ninguém levanta o rosto.\nas pedras, uma voz repete o nome daquilo que o mundo chama de tesouro.\no homem que chega ouve uma lembrança de pobreza e de partilha.",
+    answer: "AVAREZA",
+    accepts: ["avareza", "avidez", "avarice"],
+    hint: "Pesquise o terraço em que as almas ficam deitadas no chão e relacione a posição do corpo ao pecado da riqueza acumulada.",
+    solution: "No quinto terraço, os avarentos e pródigos permanecem de bruços, voltados para a terra. A resposta é AVAREZA.",
+    researchTerms: ["Dante avarentos de bruços quinto terraço", "Purgatorio XIX XX"],
+    reference: "Purg. XIX",
   },
   {
     index: 17,
-    name: "A placa na parede",
-    tabTitle: "vigília · labirinto · registro 17",
-    difficulty: 5,
-    prompt:
-      "a chave está pendurada na parede desde que a casa ganhou nome.\nna prateleiza de cima ele guardava as etiquetas em relevo;\na prateleira de baixo ficou para o que não tinha nome.",
-    answer: "PRENSA",
-    accepts: ["a prensa", "prensa de herbario", "prensa botanica"],
-    hint: "O quadrado de alfabetos deslocados, na mesma placa, diz o tipo de cifra: cada letra usa um alfabeto diferente, logo existe uma chave. Ela é a palavra que está no rodapé de todas as páginas desde a fase 10.",
-    solution:
-      "A cifra é Vigenère, com LABIRINTO (lema do rodapé desde a fase 10) como chave. A mensagem diz ABRA A GAVETA QUE NAO TEM PUXADOR. No SVG da armação de madeira, a quarta gaveta é a única sem puxador; ao abri-la, lê-se “prensa de herbário · 30 × 45 · quatro parafusos”. Resposta: PRENSA.",
-    media: "press",
+    name: "A árvore impossível",
+    tabTitle: "vigília · o fruto do outro lado",
+    cantica: "purgatorio",
+    unit: "gula",
+    artifact: "fruit",
+    difficulty: 4,
+    prompt: "a água está perto e ainda assim não alcança a boca.\numa árvore inclina os galhos para longe de todas as mãos.\nquem passa por ela lembra uma fome que não é apenas do corpo.",
+    answer: "GULA",
+    accepts: ["gula", "glutonaria", "gula purgatorio"],
+    hint: "Pesquise o terraço da fome, o jejum das almas e as árvores que oferecem fruto sem permitir que ninguém o alcance.",
+    solution: "No sexto terraço, os gulosos jejuam e contemplam árvores com frutos inalcançáveis. A resposta é GULA.",
+    researchTerms: ["Dante Purgatório árvore frutos inalcançáveis gulosos", "Purgatorio XXIII XXIV"],
+    reference: "Purg. XXIII–XXIV",
   },
   {
     index: 18,
-    name: "A impressão do som",
-    tabTitle: "vigília · registro 18",
-    difficulty: 5,
-    prompt:
-      "assim eu guardo as vozes: em papel, o tempo da esquerda para a direita, o grave embaixo e o agudo em cima.\n\nregras da vigília:\n1. Acender só a luz do cômodo em que se está.\n2. Nada entra na casa sem ser pesado.\n3. Silêncio das 22h às 6h, inclusive o meu.\n4. Ao descer, a lanterna tem de estar carregada.\n5. Usar as duas mãos para o que é de vidro.\n6. Cada coisa volta para o lugar de onde saiu.\n7. Não copiar nome próprio nenhum.\n8. Pesar antes, etiquetar depois.\n9. Escrever a data antes de escrever qualquer coisa.\n10. Nunca contar em voz alta.\n11. Ir até a jenela uma vez por dia, mesmo sem vontade.\n12. Ir à janela de novo antes de dormir.",
-    answer: "AUSÊNCIA",
-    accepts: ["ausencia", "a ausencia", "ausente"],
-    hint: "O quadro pendurado é um exemplo com legenda: mostra como este arquivo guarda desenho dentro de som. Abra o WAV num programa livre de áudio e troque a visualização para espectrograma — ou use o botão “ver como dados”.",
-    solution:
-      "O espectrograma de prensa.wav desenha oito pétalas numeradas. Lendo do topo em sentido horário, e tomando a inicial da regra indicada por cada número, forma-se A-U-S-E-N-C-I-A. Resposta: AUSÊNCIA.",
-    media: "spectrogram",
+    name: "A parede de fogo",
+    tabTitle: "vigília · a passagem arde",
+    cantica: "purgatorio",
+    unit: "luxúria",
+    artifact: "fire",
+    difficulty: 4,
+    prompt: "a última passagem parece impossível.\nninguém atravessa sem perder a forma de antes.\numa voz estrangeira saúda Dante do outro lado, e o fogo não deixa cicatriz.",
+    answer: "LUXÚRIA",
+    accepts: ["luxuria", "luxúria", "lust"],
+    hint: "Pesquise o muro de fogo do sétimo terraço e descubra qual desejo é purgado ali antes da chegada ao jardim.",
+    solution: "O sétimo terraço purga a luxúria. Dante atravessa uma parede de fogo e encontra a passagem para o Paraíso terrestre. A resposta é LUXÚRIA.",
+    researchTerms: ["Dante muro de fogo sétimo terraço luxúria", "Purgatorio XXVII"],
+    reference: "Purg. XXVII",
   },
   {
     index: 19,
-    name: "O bilhete no bolso",
-    tabTitle: "vigília · registro 19",
-    difficulty: 4,
-    prompt:
-      "// vigia.js — a lógica fica à mostra. o que entra nela é que não.\n\nele sempre deixava um bilhete no bolso de quem entrava,\npara a pessoa saber voltar.\na sortina ficava fechada de dia; a cortina de noite, aberta.",
-    answer: "CLARABOIA",
-    accepts: ["claraboia", "a claraboia", "uma claraboia", "clarabóia"],
-    hint: "A função já está pronta e explicada; falta descobrir o que se passa para ela. “Um bilhete no bolso de quem entrava” é o cookie que este site gravou no seu navegador.",
-    solution:
-      "O cookie vigilia_bolso vale ZAFKAVTAPXAGW. Passado pela função passar — que gira cada letra por (i mod 7) + 1, inverte a sequência e descarta uma letra a cada três — o resultado é CLARABOIA. O SVG ao lado confirma: a luz entra pelo teto.",
-    media: "pocket",
+    name: "Duas águas",
+    tabTitle: "vigília · o jardim no alto",
+    cantica: "purgatorio",
+    unit: "paraíso terrestre",
+    artifact: "garden",
+    difficulty: 5,
+    prompt: "o jardim fica acima da última culpa.\num rio apaga, outro devolve.\numa mulher caminha sozinha entre árvores e canta como se soubesse o caminho.\na figura esperada chega em uma carruagem que não parece terrestre.",
+    answer: "BEATRIZ",
+    accepts: ["beatrice", "beatriz portinari", "beatrice portinari"],
+    hint: "Pesquise Matelda, os rios Letes e Eunoé e a chegada da mulher que substitui Virgílio como guia.",
+    solution: "No Paraíso terrestre, Matelda apresenta os rios e Beatriz aparece como a nova guia de Dante. A resposta é BEATRIZ, na forma italiana Beatrice.",
+    researchTerms: ["Dante Matelda Letes Eunoé Beatriz", "Purgatorio XXVIII XXX"],
+    reference: "Purg. XXVIII–XXXIII",
   },
   {
     index: 20,
-    name: "Errata",
-    tabTitle: "vigília · pelas bordas",
+    name: "A subida muda de nome",
+    tabTitle: "vigília · sete marcas apagadas",
+    cantica: "purgatorio",
+    unit: "meta do Purgatório",
+    artifact: "purgatorio-meta",
     difficulty: 5,
-    prompt:
-      "eu não erro.\nestas são as palavras como deviam estar escritas.\nescreva o que eu pus no lugar delas.",
-    answer: META_II_ANSWER,
-    accepts: ["nove vezes", "9 vezes", "nove"],
-    hint: "Em cada um dos nove registros listados, a palavra aparece duas vezes: uma certa e uma com uma letra trocada. Anote as letras intrusas — e repare no traçado a lápis atrás da grade.",
-    solution:
-      "Compare cada palavra da errata com a forma incorreta na página do registro correspondente. As letras intrusas, na espiral horária que percorre os registros 11 a 19, formam N-O-V-E-V-E-Z-E-S: NOVE VEZES.",
-    media: "meta20",
+    prompt: "sete marcas foram retiradas durante a subida.\nmas a montanha deixou nove sinais no caminho.\nreconstrua a ordem da purificação para descobrir como se chama o lugar acima das nuvens.",
+    answer: META_TRANSITIONS[20],
+    accepts: ["paradiso", "paraíso"],
+    hint: "Ordene os sete terraços do pecado mais pesado ao mais leve e use as duas estações que ficam antes e depois deles.",
+    solution: "Antepurgatório, sete terraços e Paraíso terrestre formam a sequência das nove fases. A porta seguinte é o PARAÍSO.",
+    researchTerms: ["Dante sete terraços Purgatório ordem", "sete pecados capitais Purgatório"],
+    reference: "meta purgatorial",
   },
   {
     index: 21,
-    name: "O que ele imprimia",
-    tabTitle: "vigília · antes de assinar",
-    difficulty: 4,
-    prompt:
-      "z. não acreditava em nada que estivesse só na tela.\nele imprimia antes de assinar. dizia que o papel mostra o que o vidro esconde.\nna margem da folha impressa ele anotava dois comprimentos e um silêncio.",
-    answer: "SÓTÃO",
-    accepts: ["sotao", "o sotao", "no sotao", "agua furtada", "agua-furtada"],
-    hint: "A tela não tem tudo: abra a pré-visualização de impressão desta página. E “dois comprimentos e um silêncio” diz qual é o código da margem.",
-    solution:
-      "Na pré-visualização de impressão aparece, na margem: ··· / --- / - / ·- / --- → S O T A O. O código é Morse e a resposta é SÓTÃO.",
-    media: "print",
+    name: "A esfera que muda",
+    tabTitle: "vigília · quem não ficou",
+    cantica: "paradiso",
+    unit: "lua",
+    artifact: "moon",
+    difficulty: 3,
+    prompt: "a primeira esfera parece incompleta.\num rosto explica que uma promessa quebrada ainda pode esconder uma vontade inteira.\na luz muda conforme a superfície muda.",
+    answer: "PICCARDA",
+    accepts: ["piccarda donati", "piccarda"],
+    hint: "Pesquise a esfera lunar e a mulher que foi retirada de um convento contra a própria vontade.",
+    solution: "Piccarda Donati aparece na esfera da Lua, entre os espíritos que não cumpriram plenamente os votos. A resposta é PICCARDA.",
+    researchTerms: ["Dante Piccarda esfera da Lua", "Paradiso III"],
+    reference: "Par. III",
   },
   {
     index: 22,
-    name: "O caminho até o arquivo",
-    tabTitle: "vigília · registro 22",
-    difficulty: 5,
-    prompt:
-      "o que ele escreveu na etiqueta não cabia na etiqueta.\na resposta não está no arquivo: está no caminho até ele.",
-    answer: "FUNDO FALSO",
-    accepts: ["um fundo falso", "o fundo falso", "fundo duplo"],
-    hint: "“O caminho até o arquivo” é técnico: abra o painel de desenvolvedor na aba Rede e recarregue. Olhe os cabeçalhos desta pasta e o nome do arquivo da foto.",
-    solution:
-      "O cabeçalho X-Etiqueta, em Base64, diz “fundo da gaveta, ao contrário”. O arquivo da foto chama-se osaflaf-odnuf.webp; lido ao contrário, dá fundo-falso. A régua mostra 42 cm por fora e 31 por dentro. Resposta: FUNDO FALSO. A miniatura i.png que não carrega não faz parte desta fase.",
-    media: "archive-path",
+    name: "O brilho que quer nome",
+    tabTitle: "vigília · um planeta veloz",
+    cantica: "paradiso",
+    unit: "mercúrio",
+    artifact: "mercury",
+    difficulty: 3,
+    prompt: "a segunda esfera tem luz curta e movimento rápido.\num imperador aparece dentro de uma águia feita de vozes.\na pergunta é qual homem transformou uma história de império em uma ordem de justiça.",
+    answer: "JUSTINIANO",
+    accepts: ["justiniano", "giustiniano", "imperador justiniano"],
+    hint: "Pesquise a esfera de Mercúrio e o imperador que conta a própria biografia política no sexto canto do Paraíso.",
+    solution: "Justiniano aparece na esfera de Mercúrio e narra a história do Império Romano e da águia. A resposta é JUSTINIANO.",
+    researchTerms: ["Dante Justiniano Mercúrio Paradiso VI", "águia Império Romano Dante"],
+    reference: "Par. VI",
   },
   {
     index: 23,
-    name: "Doze números",
-    tabTitle: "vigília · um deles está errado",
-    difficulty: 4,
-    prompt:
-      "doze números, um ano inteiro.\neu errei um de propósito, para saber se alguém estava lendo.",
-    answer: "OBTURADOR",
-    accepts: ["o obturador", "um obturador"],
-    hint: "São os dias de cada mês. Ache o que está errado e use a posição dele na outra lista, a que está numerada de 1 a 12.",
-    solution:
-      "A tira mostra a quantidade de dias de cada mês de um ano comum. O oitavo número está errado: agosto tem 31 dias, não 30. A oitava palavra da lista é OBTURADOR.",
-    media: "calendar-strip",
+    name: "A estrela do desejo",
+    tabTitle: "vigília · um nome de cidade",
+    cantica: "paradiso",
+    unit: "vênus",
+    artifact: "venus",
+    difficulty: 3,
+    prompt: "a terceira esfera não condena o amor.\numa mulher lembra uma cidade marcada por paixões e guerras.\no brilho dela tem uma direção, mas não tem um pecado.",
+    answer: "VÊNUS",
+    accepts: ["venus", "venere"],
+    hint: "Pesquise a terceira esfera do Paraíso, associada ao amor, e descubra qual planeta dá nome a ela.",
+    solution: "A esfera de Vênus reúne os espíritos que foram influenciados pelo amor. O planeta e a esfera têm o mesmo nome: VÊNUS.",
+    researchTerms: ["Dante terceira esfera Vênus Cunizza Folco", "Paradiso VIII IX"],
+    reference: "Par. VIII",
   },
   {
     index: 24,
-    name: "Um segundo de diferença",
-    tabTitle: "vigília · registro 24",
+    name: "Dois círculos de luz",
+    tabTitle: "vigília · a ciência canta",
+    cantica: "paradiso",
+    unit: "sol",
+    artifact: "sun",
     difficulty: 4,
-    prompt:
-      "ele nunca guardava duas fotos da mesma coisa. estas duas ele guardou.\num segundo entre uma e outra. o céu não muda em um segundo.\nalguma coisa mudou.",
-    answer: "URSA MAIOR",
-    accepts: ["a ursa maior", "ursa major", "grande carro", "carro maior", "o arado", "big dipper"],
-    hint: "As duas fotos não são iguais: arraste o controle de diferença até o fim. Vão sobrar sete pontos, e o desenho que eles formam está em qualquer carta celeste.",
-    solution:
-      "A diferença revela sete pontos claros que não existem na primeira imagem. Quatro formam um quadrilátero e três um cabo curvo; as duas estrelas apontadoras são maiores. É a URSA MAIOR.",
-    media: "difference",
+    prompt: "duas coroas giram em sentidos opostos.\num mestre enumera nomes como se fossem instrumentos de uma mesma máquina.\na resposta está no homem que explica a primeira roda.",
+    answer: "TOMÁS DE AQUINO",
+    accepts: ["tomas de aquino", "tommaso d aquino", "tomás de aquino", "aquino"],
+    hint: "Pesquise os dois círculos de sábios na esfera do Sol e identifique o dominicano que apresenta a primeira coroa.",
+    solution: "Tomás de Aquino apresenta os sábios da primeira coroa na esfera do Sol. A resposta é TOMÁS DE AQUINO.",
+    researchTerms: ["Dante Tomás de Aquino esfera do Sol coroas", "Paradiso X XIII"],
+    reference: "Par. X–XIII",
   },
   {
     index: 25,
-    name: "Cinco medidas",
-    tabTitle: "vigília · cinco rumos",
-    difficulty: 5,
-    prompt:
-      "ele mediu a mesma coisa de cinco lugares, em cinco dias diferentes.\nas cinco medidas não se encontram. nenhuma está errada.\no que está no meio é o que ele estava medindo.",
-    answer: "ÂNCORA",
-    accepts: ["a ancora", "uma ancora", "fundeadouro", "ancoradouro"],
-    hint: "Os números de três algarismos são rumos em graus. Trace as cinco linhas com as réguas: elas quase se encontram, e o que interessa é o centro do que sobra.",
-    solution:
-      "As cinco marcações cruzadas formam um polígono de erro cujo centro cai em H8. Nessa célula, a carta traz o único símbolo não batimétrico: um fundeadouro, marcado por uma ÂNCORA.",
-    media: "nautical-chart",
+    name: "A cruz vermelha",
+    tabTitle: "vigília · um ancestral espera",
+    cantica: "paradiso",
+    unit: "marte",
+    artifact: "cross",
+    difficulty: 4,
+    prompt: "a quinta esfera desenha uma cruz viva.\num ancestral espera no braço direito para contar uma cidade antes do exílio.\na memória familiar vira mapa político.",
+    answer: "CACCIAGUIDA",
+    accepts: ["cacciaguida", "cacciaguida degli elisei"],
+    hint: "Pesquise o antepassado de Dante que aparece na esfera de Marte e anuncia o exílio do poeta.",
+    solution: "Cacciaguida, antepassado de Dante, aparece na cruz dos guerreiros da fé na esfera de Marte. Ele fala da antiga Florença e do exílio. A resposta é CACCIAGUIDA.",
+    researchTerms: ["Dante Cacciaguida esfera de Marte exílio", "Paradiso XV XVII"],
+    reference: "Par. XIV–XVII",
   },
   {
     index: 26,
-    name: "Você já esteve aqui",
-    tabTitle: "vigília · quarto minguantes",
-    description: "29 dias, 12 horas, 44 minutos.t",
-    difficulty: 5,
-    prompt:
-      "você chegou cedo.\neu deixo a luz acesa na janela — ela não é minha.\nela só passa por aqui, some, e volta.\nsempre no mesmo dia.\nvocê já esteve aqui.\nquase.",
-    answer: "VESTÍGIO",
-    accepts: ["vestigio", "o vestigio", "um vestigio", "vestigios"],
-    hint: "Você reconhece esta página. Abra o registro 01 em outra aba e compare as duas inteiras — título, código-fonte, comentários, nomes de classe e atributos.",
-    solution:
-      "Compare os registros 01 e 26 na ordem do documento. Os sete trechos acrescentados são V, E, S, T, I, G e IO: VESTÍGIO.",
-    media: "return",
-    htmlComment: "registro 01 e",
+    name: "A ave formada por vozes",
+    tabTitle: "vigília · a justiça soletra",
+    cantica: "paradiso",
+    unit: "júpiter",
+    artifact: "eagle",
+    difficulty: 4,
+    prompt: "muitas almas formam um único corpo no céu.\nas letras do corpo aparece uma frase de justiça.\num bico fecha a figura e aponta para um caso que nenhum julgamento humano alcança.",
+    answer: "ÁGUIA",
+    accepts: ["aguila", "aquila", "águia da justiça"],
+    hint: "Pesquise a esfera de Júpiter e a grande ave formada por almas que soletram uma sentença.",
+    solution: "Na esfera de Júpiter, os espíritos justos formam a águia imperial. A imagem e a frase nas letras indicam a ÁGUIA.",
+    researchTerms: ["Dante águia justiça Júpiter letras", "Paradiso XVIII XX"],
+    reference: "Par. XVIII–XX",
   },
   {
     index: 27,
-    name: "O narrador",
-    tabTitle: "vigília · cópia 19",
+    name: "A escada dourada",
+    tabTitle: "vigília · sobe quem contempla",
+    cantica: "paradiso",
+    unit: "saturno",
+    artifact: "ladder",
     difficulty: 4,
-    prompt:
-      "romance brasileiro de —, publicado em —, em 1881.\no narrador conta a própria vida em capítulos curtíssimos, alguns de três linhas,\ne interrompe a história o tempo todo para falar com quem está lendo.\no livro é dedicado ao verme que roeu as frias carnes do seu cadáver.\no narrador só pôde escrever porque já estava morto — e não é metáfora do tempo:\nele morreu primeiro e escreveu depois.\nfoi copiado nesta casa em 19 noites.\nescreva o nome de quem narra.\n\nna margem, a regra 7 das regras da vigília (registro 18): não copiar nome próprio nenhum.",
-    answer: "BRÁS CUBAS",
-    accepts: ["o bras cubas", "braz cubas"],
-    specialRejects: {
-      terms: ["machado de assis", "memorias postumas", "memorias postumas de bras cubas"],
-      message: "não é quem escreveu o livro. é quem escreve dentro dele.",
-    },
-    hint: "O resumo é exato, só está sem nomes. A dedicatória citada é famosa e quase literal: pesquise por ela entre aspas, e note que a pergunta é quem narra, não quem escreveu.",
-    solution:
-      "Os indícios apontam para Memórias Póstumas de Brás Cubas, de Machado de Assis. Quem narra é o próprio defunto autor: BRÁS CUBAS.",
-    media: "manuscript",
+    prompt: "não há música nesta esfera.\numa escada se perde no alto, e quem sobe parece não tocar os degraus.\num homem de hábito explica por que a quietude é uma forma de visão.",
+    answer: "SATURNO",
+    accepts: ["saturno", "saturn"],
+    hint: "Pesquise a esfera dos contemplativos e o planeta associado à escada dourada.",
+    solution: "Saturno é a esfera dos espíritos contemplativos. A escada dourada e o silêncio distinguem esse céu. A resposta é SATURNO.",
+    researchTerms: ["Dante escada dourada Saturno contemplativos", "Paradiso XXI XXII"],
+    reference: "Par. XXI–XXII",
   },
   {
     index: 28,
-    name: "A página sem número",
-    tabTitle: "vigília · cinco por cinco",
+    name: "Três virtudes",
+    tabTitle: "vigília · a prova das estrelas",
+    cantica: "paradiso",
+    unit: "estrelas fixas",
+    artifact: "virtues",
     difficulty: 5,
-    prompt:
-      "as gavetas desta casa sempre foram endereço, nunca móvel.\ncinco por cinco, como no desenho que você já viu.\na fita de selos na parede é só o índice; não serve para ler nada.",
-    answer: "GUARDA",
-    accepts: ["a guarda", "folha de guarda", "guardas"],
-    hint: "Pares de números de 1 a 5 são coordenadas numa grade de cinco por cinco, e “o desenho que você já viu” é a planta do registro 15. Use o bloco de cômodos B2 a F6.",
-    solution:
-      "Use o bloco B2–F6 da planta do registro 15 como quadrado de Políbio para decifrar o texto. A página sem número é a folha colada à capa: em encadernação, chama-se GUARDA.",
-    media: "page-without-number",
+    prompt: "o céu deixa de ser apenas paisagem.\ntrês perguntas são feitas em sequência: acreditar, esperar e amar.\nquem responde precisa reconhecer a mesma ordem em três símbolos.",
+    answer: "CARIDADE",
+    accepts: ["carita", "carità", "amor teologal"],
+    hint: "Pesquise os exames de Dante na esfera das estrelas fixas e associe as três perguntas às virtudes teologais.",
+    solution: "Nas estrelas fixas, Dante é examinado sobre fé, esperança e caridade. A terceira pergunta trata do amor teologal; a resposta é CARIDADE.",
+    researchTerms: ["Dante três virtudes teologais estrelas fixas", "Paradiso XXIV XXV XXVI"],
+    reference: "Par. XXIV–XXVI",
   },
   {
     index: 29,
-    name: "Véspera",
-    tabTitle: "vigília · a porta",
+    name: "O movimento de tudo",
+    tabTitle: "vigília · antes do ponto imóvel",
+    cantica: "paradiso",
+    unit: "primum mobile",
+    artifact: "angels",
     difficulty: 5,
-    prompt:
-      "quatro coisas que você já sabe fazer, uma vez cada.\na porta é a mesma desde o começo. muda o lado de onde se olha.\nI · o que o desenho diz que é\nII · o que o papel mostra e o vidro esconde\nIII · o endereço deste desenho, ao contrário\nIV · a gaveta B4 da casa\nestes campos são seus; não envio nada.",
-    answer: "VÉSPERA",
-    accepts: ["vespera", "a vespera", "vespera de nada"],
-    hint: "Cada uma das quatro linhas descreve algo que você já fez neste jogo, com as mesmas palavras de quando aprendeu: o título dentro do desenho, a versão impressa, o nome do arquivo e a planta do registro 15.",
-    solution:
-      "I: o título do SVG mente; conte sete letras. II: a margem da página impressa diz que a terceira sílaba é RA. III: leia arepsev ao contrário para obter vespera. IV: a gaveta B4 da planta traz VÉS·PE·RA. Resposta: VÉSPERA.",
-    media: "eve",
+    prompt: "a esfera mais rápida não é um planeta.\nela contém todos os círculos que giram abaixo.\num mapa de anéis mostra nove ordens e um ponto além delas.",
+    answer: "PRIMUM MOBILE",
+    accepts: ["primeiro móvel", "primo mobile", "primo cielo", "primeiro motor"],
+    hint: "Pesquise a nona esfera do Paraíso e relacione sua velocidade ao mapa medieval dos céus e das hierarquias angelicais.",
+    solution: "O Primum Mobile, ou Primeiro Móvel, é a nona esfera e dá movimento às demais. Depois dele vem o Empíreo, que não é um céu material. A resposta é PRIMUM MOBILE.",
+    researchTerms: ["Dante Primum Mobile nona esfera anjos", "Paradiso XXVII XXVIII"],
+    reference: "Par. XXVII–XXVIII",
   },
   {
     index: 30,
-    name: "Nove vezes",
-    tabTitle: "vigília · nove vezes",
+    name: "As últimas estrelas",
+    tabTitle: "vigília · depois da nona esfera",
+    description: "três finais, nove esferas e seis espaços.",
+    cantica: "paradiso",
+    unit: "empíreo",
+    artifact: "paradiso-meta",
     difficulty: 5,
-    prompt:
-      "nove vezes eu tirei uma coisa do lugar.\nnão escondi: deixei o buraco à vista e uma flor do lado,\nporque eu precisava saber onde tinha posto cada pedaço.\ndevolva. Cada moldura aceita um caractere.\ne então escreva o que estava escondido.",
-    answer: META_FINAL_ANSWER,
-    accepts: ["a margarida"],
-    hint: "Nos nove registros listados, a flor aparece uma segunda vez, colada a um conjunto em ordem — um alfabeto, um teclado, uma escala, uma cartela — a que falta exatamente um membro. Volte a cada um e descubra qual.",
-    solution:
-      "Reponha as letras ausentes nos registros 02, 05, 08, 12, 15, 17, 22, 25 e 28. Na ordem indicada, formam MARGARIDA. Depois escreva o nome no campo maior.",
-    media: "meta-final",
+    prompt: "as três viagens terminam olhando para cima.\nas nove esferas, uma ordem reaparece três vezes.\nrecolha a palavra comum aos três últimos versos e escreva-a nos seis espaços.",
+    answer: META_TRANSITIONS[30],
+    accepts: ["stelle", "estrelas"],
+    hint: "Compare o último verso de cada cântica e depois use a sequência das nove esferas para confirmar seis letras. O italiano aparece no final, mas a ideia é reconhecível em português.",
+    solution: "Inferno, Purgatório e Paraíso terminam com a mesma imagem: as estrelas. A ordem das esferas confirma as seis letras STELLE. O epílogo acrescenta a ideia do amor que move o sol e as estrelas.",
+    researchTerms: ["Dante final Inferno stelle final Purgatorio stelle Paradiso stelle", "l amor che move il sole e l altre stelle"],
+    reference: "meta do Paraíso",
   },
 ]
+
+const PHASES: Phase[] = PHASE_DRAFTS.map((phase) => ({
+  ...phase,
+  unidadeEstrutural: phase.unit,
+  temaDePesquisa: phase.researchTerms,
+  variantesAceitas: phase.accepts ?? [],
+  referenciasVerificacao: phase.reference,
+}))
 
 const byIndex = new Map(PHASES.map((phase) => [phase.index, phase]))
 
@@ -542,37 +578,23 @@ export function getPhase(index: number): Phase | undefined {
 export function getPhaseMeta(index: number): PhaseMeta | undefined {
   const phase = byIndex.get(index)
   if (!phase) return undefined
-
-  const { index: i, name, difficulty, prompt } = phase
-  return { index: i, name, difficulty, prompt }
+  const { index: phaseIndex, name, difficulty, prompt, cantica, unit } = phase
+  return { index: phaseIndex, name, difficulty, prompt, cantica, unit }
 }
 
 export function isCorrect(index: number, submitted: string): boolean {
   const phase = byIndex.get(index)
   if (!phase || index === 30) return false
-
   const attempt = normalizeAnswer(submitted)
   if (!attempt) return false
-
   return [phase.answer, ...(phase.accepts ?? [])].some(
     (accepted) => normalizeAnswer(accepted) === attempt
   )
 }
 
-export function getSpecialRejection(index: number, submitted: string): string | null {
-  const phase = byIndex.get(index)
-  if (!phase?.specialRejects) return null
-  const attempt = normalizeAnswer(submitted)
-  return phase.specialRejects.terms.some((term) => normalizeAnswer(term) === attempt)
-    ? phase.specialRejects.message
-    : null
-}
-
 export function verifyFinalReconstruction(letters: string[]): boolean {
-  const records = Object.keys(LACUNAS)
-    .sort((a, b) => Number(a) - Number(b)) as Array<keyof typeof LACUNAS>
-  return letters.length === records.length && records.every(
-    (record, index) => letters[index]?.trim().toUpperCase() === LACUNAS[record]
+  return letters.length === FINAL_LETTERS.length && FINAL_LETTERS.every(
+    (letter, index) => letters[index]?.trim().toUpperCase() === letter
   )
 }
 

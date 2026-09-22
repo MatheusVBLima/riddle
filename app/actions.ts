@@ -3,10 +3,9 @@
 import { randomUUID } from "node:crypto"
 import { cookies } from "next/headers"
 
-import { COOKIE_19, LACUNAS } from "@/lib/canon"
+import { FINAL_LETTERS } from "@/lib/canon"
 import {
   getPhase,
-  getSpecialRejection,
   isCorrect,
   isFinalAnswer,
   PHASE_COUNT,
@@ -36,7 +35,8 @@ async function canAttempt(index: number): Promise<boolean> {
       maxAge: 60 * 60 * 24 * 365,
     })
   }
-  const key = `${session}:${index}`
+
+  const key = session + ":" + index
   const now = Date.now()
   const previous = attempts.get(key) ?? []
   const recent = previous.filter((time) => now - time < 60 * 60 * 1000)
@@ -55,15 +55,11 @@ async function canAttempt(index: number): Promise<boolean> {
   return true
 }
 
-export async function submitAnswer(
-  index: number,
-  submitted: string
-): Promise<AnswerResult> {
+export async function submitAnswer(index: number, submitted: string): Promise<AnswerResult> {
   if (!submitted.trim()) return { status: "empty" }
   if (index === 30 || !getPhase(index)) return { status: "wrong" }
   if (!(await canAttempt(index))) return { status: "rate-limited" }
-  const specialRejection = getSpecialRejection(index, submitted)
-  if (specialRejection) return { status: "rejected", message: specialRejection }
+
   if (!isCorrect(index, submitted)) return { status: "wrong" }
 
   const phase = getPhase(index)
@@ -73,38 +69,28 @@ export async function submitAnswer(
   return { status: "correct", next, answer: phase.answer }
 }
 
-/** Cada lacuna é validada isoladamente; nenhuma chamada revela a letra esperada. */
-export async function submitGap(
-  record: string,
-  submitted: string
-): Promise<{ correct: boolean; rateLimited?: boolean }> {
-  if (!(record in LACUNAS) || submitted.length !== 1) return { correct: false }
-  const index = Number(record)
-  if (!(await canAttempt(index))) return { correct: false, rateLimited: true }
-  const expected = LACUNAS[record as keyof typeof LACUNAS]
-  return { correct: submitted.toUpperCase() === expected }
-}
-
 export async function submitFinalName(
   letters: string[],
   submitted: string
 ): Promise<AnswerResult> {
   if (!submitted.trim()) return { status: "empty" }
   if (!(await canAttempt(30))) return { status: "rate-limited" }
-  if (!verifyFinalReconstruction(letters) || !isFinalAnswer(submitted)) {
+
+  const normalizedLetters = letters.map((letter) => letter.trim().toUpperCase())
+  if (
+    normalizedLetters.length !== FINAL_LETTERS.length ||
+    !verifyFinalReconstruction(normalizedLetters) ||
+    !isFinalAnswer(submitted)
+  ) {
     return { status: "wrong" }
   }
+
   const phase = getPhase(30)
   return phase
     ? { status: "correct", next: null, answer: phase.answer }
     : { status: "wrong" }
 }
 
-/**
- * A dica é buscada sob demanda, e não entregue junto com a fase, para que
- * abri-la seja uma escolha do jogador em vez de um efeito colateral de
- * carregar a página — e para que não viaje no HTML de quem não pediu.
- */
 export async function revealHint(index: number): Promise<string | null> {
   return getPhase(index)?.hint ?? null
 }
@@ -113,19 +99,15 @@ export async function revealSolution(index: number): Promise<string | null> {
   return getPhase(index)?.solution ?? null
 }
 
-/** The phase's only cookie is a visible puzzle input, not session data. */
+/** Compatibilidade para o componente de bolso mantido no arquivo histórico. */
 export async function stampPocketCookie(): Promise<{ fallbackValue: string }> {
   const jar = await cookies()
-  jar.set("vigilia_bolso", COOKIE_19, {
-    httpOnly: false,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  })
-  return { fallbackValue: COOKIE_19 }
+  const value = "ZAFKAVTAPXAGW"
+  jar.set("vigilia_bolso", value, { httpOnly: false, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 })
+  return { fallbackValue: value }
 }
 
-/** The drawer's label is only sent after the player opens that drawer. */
+/** Compatibilidade para o componente de gaveta mantido no arquivo histórico. */
 export async function revealDrawer(): Promise<string> {
   return "prensa de herbário · 30 × 45 · quatro parafusos"
 }

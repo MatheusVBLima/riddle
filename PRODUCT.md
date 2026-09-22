@@ -1,62 +1,27 @@
-# riddle
+# Vigília
 
 ## O que é
 
-Um jogo de enigmas de navegador com 30 fases. O jogador avança descobrindo que
-qualquer parte da página pode ser pista: o texto, o título da aba, a URL, o
-HTML, os nomes dos arquivos, as imagens, o áudio, os headers.
+Um puzzlehunt de navegador com 30 fases sobre a estrutura, os personagens e a cosmologia da Divina Comédia. O jogador pesquisa sinais na internet e cruza as descobertas com pistas plantadas na própria página.
 
-A filosofia é a de Notpron, Black Riddle e Ouverture Facile — observar,
-investigar, pesquisar, transformar — mas com enigmas, respostas e cadeias
-lógicas inteiramente originais.
-
-## A sensação que o jogo persegue
-
-> "Eu não fazia ideia do que precisava fazer... mas agora que descobri, faz
-> todo sentido."
-
-Esse "aha" vale mais do que dificuldade. Toda fase tem uma cadeia lógica
-reconstruível. Nunca "como eu deveria adivinhar isso?".
+O jogo se inspira na obra de Dante Alighieri sem depender de uma tradução específica. A página, o título da aba, o SVG, o áudio, a URL e o código continuam sendo superfícies possíveis de pista.
 
 ## Estrutura
 
-- Fases 1–5: introdução. Ensinam implicitamente que tudo pode ser pista.
-- Fases 6–9: combinam duas fontes de pista.
-- **Fase 10: primeiro meta-enigma.** Usa informação das fases anteriores por
-  uma relação nova, não por concatenação.
-- Fases 11–15: áudio, imagem, mapas, propriedades de arquivo.
-- Fases 16–19: mídias e informações misturadas.
-- **Fase 20: segundo meta-enigma.** Usa elementos de 11–19.
-- Fases 21–25: múltiplas camadas.
-- Fases 26–29: mecânicas já aprendidas em combinações novas.
-- **Fase 30: meta final.** Detalhes que pareciam ambientação ganham sentido.
+- Fases 1–10: Inferno, com nove círculos e uma meta de transição.
+- Fases 11–20: Purgatório, com antepurgatório, sete terraços e o Paraíso terrestre.
+- Fases 21–30: Paraíso, com nove esferas e a meta final no Empíreo.
+- Cada fase tem uma única dica e uma solução separada.
+- As respostas e soluções vivem apenas no servidor.
 
-Dificuldade de 1 a 5 por fase. A curva não é linear: depois de uma fase muito
-difícil, uma mais curta dá ritmo.
+## Sensação
 
-## Atmosfera
+Sombria, investigativa, curiosa e literária. O jogo não exige leitura integral da obra nem conhecimento de italiano. Cada enigma dá uma âncora de pesquisa reconhecível e pede uma dedução a partir de mais de um fato.
 
-Misteriosa, digital, minimalista, um pouco inquietante, curiosa, inteligente.
-Não é terror. O puzzle continua sendo o principal. A narrativa aparece em
-fragmentos, nunca em blocos de exposição, e converge na fase 30.
+## Regras
 
-## Regras que valem para toda fase
-
-- Resposta inequívoca. O jogador sabe quando achou.
-- **Uma dica por fase**, e só uma. Como é o único empurrão antes da solução,
-  ela aponta direção e mecânica de uma vez. Atrás dela, uma opção separada
-  revela a solução completa.
-- Pista de marcação nas fases iniciais vai em atributo `data-`, que o DevTools
-  mostra formatado. Comentário de HTML fica para as fases avançadas: o Next
-  serve a página numa linha só, e no Ctrl+U um comentário é invisível na
-  prática.
-- Sem red herrings deliberados. Decorativo pode existir, mas tem que parecer
-  claramente decorativo.
-- Sem dependência de ferramenta paga, plugin antigo ou site externo instável.
-- Caminho alternativo quando a pista depende só de cor, áudio ou visão.
-
-## Estado
-
-Este repositório contém a base do jogo: rotas de fase, verificação de
-resposta, sistema de dicas, progresso e a identidade visual. O conteúdo das 30
-fases é especificado separadamente e entra pelo contrato em `lib/phases.ts`.
+- Não copiar trechos longos de traduções modernas.
+- Aceitar grafias portuguesas, italianas e variantes comuns quando a resposta for inequívoca.
+- Preferir fatos verificáveis e fontes estáveis.
+- Oferecer uma alternativa textual quando uma pista depender de áudio ou visão.
+- Usar as mecânicas de navegador como parte da descoberta, sem fazer todas as fases dependerem delas.

@@ -71,5 +71,5 @@ export function markSolved(index: number, answer: string): void {
 
 export function furthestReached(): number {
   const solved = solvedPhases()
-  return solved.length ? Math.max(...solved) + 1 : 1
+  return solved.length ? Math.min(Math.max(...solved) + 1, 30) : 1
 }

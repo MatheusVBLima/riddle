@@ -3,94 +3,32 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 
-import { submitFinalName, submitGap, type AnswerResult } from "@/app/actions"
-import { FlowerMark } from "@/components/flower-mark"
+import { submitFinalName, type AnswerResult } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { markSolved } from "@/lib/progress"
 
-const records = ["02", "05", "08", "12", "15", "17", "22", "25", "28"] as const
-const storageKey = "vigilia:reconstrucao"
-
-type LetterMap = Partial<Record<(typeof records)[number], string>>
-
-function parseSaved(raw: string): LetterMap {
-  try {
-    const parsed: unknown = JSON.parse(raw)
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {}
-    return Object.fromEntries(records.flatMap((record) => {
-      const value = (parsed as Record<string, unknown>)[record]
-      return typeof value === "string" && /^[A-Z]$/.test(value) ? [[record, value]] : []
-    }))
-  } catch {
-    return {}
-  }
-}
-
-function storedSnapshot() {
-  try {
-    return window.localStorage.getItem(storageKey) ?? "{}"
-  } catch {
-    return "{}"
-  }
-}
-
-function subscribeToStoredLetters(callback: () => void) {
-  window.addEventListener("storage", callback)
-  window.addEventListener("vigilia:reconstruction", callback)
-  return () => {
-    window.removeEventListener("storage", callback)
-    window.removeEventListener("vigilia:reconstruction", callback)
-  }
-}
+const slots = [1, 2, 3, 4, 5, 6] as const
 
 export function FinalMetaPuzzle() {
   const router = useRouter()
-  const saved = React.useSyncExternalStore(subscribeToStoredLetters, storedSnapshot, () => "{}")
-  const [liveLetters, setLiveLetters] = React.useState<LetterMap>({})
-  const letters = React.useMemo(() => ({ ...parseSaved(saved), ...liveLetters }), [saved, liveLetters])
-  const [drafts, setDrafts] = React.useState<LetterMap>({})
-  const [pendingRecord, setPendingRecord] = React.useState<string | null>(null)
-  const [gapMessage, setGapMessage] = React.useState("")
+  const [letters, setLetters] = React.useState<string[]>(["", "", "", "", "", ""])
   const [answer, setAnswer] = React.useState("")
   const [result, setResult] = React.useState<AnswerResult | null>(null)
   const [pending, startTransition] = React.useTransition()
-  const complete = records.every((record) => letters[record])
+  const complete = letters.every((letter) => /^[A-Z]$/.test(letter))
 
-  function checkGap(record: (typeof records)[number]) {
-    const value = (drafts[record] ?? "").trim().slice(0, 1)
-    if (!value) {
-      setGapMessage(`Escreva uma letra para o registro ${record}.`)
-      return
-    }
-
-    setPendingRecord(record)
-    setGapMessage("")
-    startTransition(async () => {
-      const response = await submitGap(record, value)
-      setPendingRecord(null)
-      if (!response.correct) {
-        setGapMessage(response.rateLimited ? "O arquivo não responde a pressa." : "Essa letra não fecha esta lacuna.")
-        return
-      }
-
-      const next = { ...letters, [record]: value.toUpperCase() }
-      setLiveLetters(next)
-      setDrafts((current) => ({ ...current, [record]: value.toUpperCase() }))
-      try {
-        window.localStorage.setItem(storageKey, JSON.stringify(next))
-        window.dispatchEvent(new Event("vigilia:reconstruction"))
-      } catch {
-        // The player can still finish this visit if storage is unavailable.
-      }
-    })
+  function setLetter(index: number, value: string) {
+    const next = [...letters]
+    next[index] = value.slice(-1).toUpperCase()
+    setLetters(next)
+    setResult(null)
   }
 
   function finish(event: React.FormEvent) {
     event.preventDefault()
-    const orderedLetters = records.map((record) => letters[record] ?? "")
     startTransition(async () => {
-      const outcome = await submitFinalName(orderedLetters, answer)
+      const outcome = await submitFinalName(letters, answer)
       setResult(outcome)
       if (outcome.status !== "correct") return
       markSolved(30, outcome.answer)
@@ -99,46 +37,41 @@ export function FinalMetaPuzzle() {
   }
 
   return (
-    <section className="flex flex-col gap-7" aria-label="Lacunas do arquivo">
-      <div className="grid grid-cols-3 gap-x-3 gap-y-5 sm:grid-cols-9">
-        {records.map((record) => (
-          <div key={record} className="flex min-w-0 flex-col items-center gap-2">
-            <FlowerMark className="size-5" />
-            <Input
-              value={letters[record] ?? drafts[record] ?? ""}
-              onChange={(event) => {
-                const value = event.target.value.slice(-1).toUpperCase()
-                setDrafts((current) => ({ ...current, [record]: value }))
-                setGapMessage("")
-              }}
-              maxLength={1}
-              disabled={Boolean(letters[record]) || pending}
-              autoComplete="off"
-              autoCapitalize="characters"
-              spellCheck={false}
-            aria-label={`Letra a completar no registro ${record}`}
-              className="h-11 w-11 px-0 text-center font-mono text-lg uppercase"
-            />
-            <span className="font-mono text-[10px] text-muted-foreground">{record}</span>
-            {!letters[record] && (
-              <Button type="button" size="sm" variant="ghost" onClick={() => checkGap(record)} disabled={pending} className="px-1 text-[10px]">
-                {pendingRecord === record ? "..." : "devolver"}
-              </Button>
-            )}
-          </div>
+    <section className="flex flex-col gap-6 border-t border-border pt-6" aria-label="Meta final">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="border border-border p-3">
+          <span className="font-mono text-[10px] text-muted-foreground">PRIMEIRO PERCURSO</span>
+          <p className="mt-2 font-serif">a viagem termina olhando para o alto</p>
+        </div>
+        <div className="border border-border p-3">
+          <span className="font-mono text-[10px] text-muted-foreground">SEGUNDO PERCURSO</span>
+          <p className="mt-2 font-serif">a subida termina olhando para o alto</p>
+        </div>
+        <div className="border border-border p-3">
+          <span className="font-mono text-[10px] text-muted-foreground">TERCEIRO PERCURSO</span>
+          <p className="mt-2 font-serif">o movimento termina olhando para o alto</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2" aria-label="Seis letras da extração final">
+        {slots.map((slot, index) => (
+          <Input
+            key={slot}
+            value={letters[index]}
+            onChange={(event) => setLetter(index, event.target.value)}
+            maxLength={1}
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            aria-label={"Letra " + slot + " da palavra final"}
+            className="size-12 px-0 text-center font-mono text-xl uppercase"
+            disabled={pending || result?.status === "correct"}
+          />
         ))}
       </div>
 
-      <p role="status" aria-live="polite" className="min-h-5 text-sm text-muted-foreground">
-        {gapMessage}
-      </p>
-
-      <div className="flex min-h-[12rem] items-center justify-center overflow-hidden" aria-live="polite">
-        <FlowerMark className={`final-mark${complete ? " final-mark--open" : ""}`} />
-      </div>
-
       <form onSubmit={finish} className="flex flex-col gap-3">
-        <label htmlFor="final-answer" className="text-sm text-muted-foreground">e então escreva o que estava escondido</label>
+        <label htmlFor="final-answer" className="text-sm text-muted-foreground">confirme a palavra encontrada</label>
         <div className="flex gap-2">
           <Input
             id="final-answer"
@@ -155,8 +88,8 @@ export function FinalMetaPuzzle() {
           </Button>
         </div>
         <p role="status" aria-live="polite" className="min-h-5 text-sm text-muted-foreground">
-          {!complete && "devolva uma letra em cada moldura"}
-          {result?.status === "wrong" && "Não é isso. A pista ainda está nas páginas."}
+          {!complete && "preencha os seis espaços da extração"}
+          {result?.status === "wrong" && "A ordem ainda não fecha. Releia os três finais e as nove esferas."}
           {result?.status === "empty" && "Escreva alguma coisa antes de enviar."}
           {result?.status === "rate-limited" && "O arquivo não responde a pressa."}
         </p>

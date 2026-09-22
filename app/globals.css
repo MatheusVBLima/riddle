@@ -197,6 +197,127 @@
     }
 }
 
+/* A linguagem visual do arquivo dantesco: carvão, papel antigo e ocre. */
+.dante-page,
+.dante-home {
+  position: relative;
+}
+
+.dante-page::before,
+.dante-home::before {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(circle at 80% 10%, rgba(201, 148, 79, .08), transparent 28rem),
+    linear-gradient(125deg, transparent 0 49.9%, rgba(233, 228, 216, .035) 50%, transparent 50.1%);
+  opacity: .7;
+}
+
+.dante-index {
+  color: #c9944f;
+  font-family: var(--font-mono);
+  font-size: clamp(3.5rem, 10vw, 7.5rem);
+  letter-spacing: -.08em;
+  line-height: .78;
+  font-variant-numeric: tabular-nums;
+}
+
+.dante-plate {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid color-mix(in oklab, var(--border) 88%, #c9944f 12%);
+  background: color-mix(in oklab, var(--card) 92%, #c9944f 8%);
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.dante-plate::after {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  width: 5rem;
+  height: 1px;
+  background: #c9944f;
+  content: "";
+  opacity: .65;
+}
+
+.dante-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.dante-ledger {
+  display: grid;
+  gap: .65rem;
+  margin: 0;
+  padding: 0;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  list-style: none;
+}
+
+.dante-ledger li {
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  padding-bottom: .65rem;
+}
+
+.dante-rule {
+  display: inline-flex;
+  gap: .35rem;
+}
+
+.dante-rule i {
+  display: block;
+  width: .35rem;
+  height: .35rem;
+  border-radius: 999px;
+  background: #c9944f;
+}
+
+.dante-cta {
+  border-bottom: 1px solid #c9944f;
+  padding-bottom: .3rem;
+  color: #e9e4d8;
+  font-family: var(--font-mono);
+  font-size: .8rem;
+  letter-spacing: .12em;
+  text-transform: lowercase;
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.dante-cta:hover,
+.dante-cta:focus-visible {
+  border-color: #e9e4d8;
+  color: #c9944f;
+}
+
+.dante-home-diagram {
+  align-self: center;
+  width: min(100%, 28rem);
+  justify-self: end;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dante-plate {
+    animation: dante-appear .55s cubic-bezier(.16, .84, .44, 1) both;
+  }
+}
+
+@keyframes dante-appear {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .dante-index { font-size: 4.5rem; }
+  .dante-page { gap: 2.5rem; }
+}
+
 .phase-crescent,
 .phase-crescent-i {
   position: fixed;

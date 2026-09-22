@@ -4,29 +4,47 @@ import { ResumeLink } from "@/components/resume-link"
 
 export default function Page() {
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col justify-center gap-10 px-6 py-16">
-      <h1 className="font-mono text-4xl lowercase tracking-[0.2em]">riddle</h1>
+    <main className="dante-home mx-auto flex min-h-svh w-full max-w-5xl flex-col justify-between gap-16 px-6 py-10 sm:px-10 sm:py-14">
+      <header className="flex items-center justify-between border-b border-border pb-5">
+        <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">ARQUIVO · 1300</span>
+        <span className="font-mono text-xs text-muted-foreground">VIGÍLIA / 30</span>
+      </header>
 
-      <div className="flex flex-col gap-4 leading-relaxed">
-        <p>
-          Trinta páginas. Cada uma sabe a resposta que leva à seguinte, e nenhuma
-          vai dizer onde guardou.
-        </p>
-        <p className="text-muted-foreground">
-          Nada aqui é decoração por acidente. O texto, o endereço, o título da
-          aba, o que veio junto e não apareceu — tudo já é parte do enigma.
-        </p>
-      </div>
+      <section className="grid items-end gap-10 lg:grid-cols-[1.2fr_.8fr]">
+        <div className="flex flex-col gap-8">
+          <h1 className="max-w-3xl font-serif text-6xl leading-[.9] tracking-[-.03em] sm:text-8xl">
+            uma viagem<br />em três alturas
+          </h1>
+          <p className="max-w-xl font-serif text-xl leading-relaxed text-foreground/80">
+            Um arquivo dantesco em trinta fases. Pesquise os sinais, atravesse as estruturas e descubra o que se repete quando o mundo muda de forma.
+          </p>
+          <div className="flex flex-wrap items-center gap-5">
+            <Link href="/f/1" className="dante-cta">abrir o arquivo</Link>
+            <ResumeLink />
+          </div>
+        </div>
 
-      <div className="flex items-baseline gap-4">
-        <Link
-          href="/f/1"
-          className="underline underline-offset-4 hover:text-muted-foreground"
-        >
-          Começar
-        </Link>
-        <ResumeLink />
-      </div>
+        <div className="dante-home-diagram" aria-label="Diagrama de três anéis: Inferno, Purgatório e Paraíso">
+          <svg viewBox="0 0 420 420" role="img" className="dante-svg">
+            <circle cx="210" cy="210" r="176" fill="none" stroke="#5e5a52" />
+            <circle cx="210" cy="210" r="122" fill="none" stroke="#8d8578" />
+            <circle cx="210" cy="210" r="68" fill="none" stroke="#c9944f" strokeWidth="2" />
+            <circle cx="210" cy="210" r="8" fill="#c9944f" />
+            <path d="M210 18V402M18 210H402" stroke="#5e5a52" strokeDasharray="2 9" />
+            <g fill="#e9e4d8" fontFamily="monospace" fontSize="11" textAnchor="middle">
+              <text x="210" y="48">PARAÍSO</text>
+              <text x="210" y="101">PURGATÓRIO</text>
+              <text x="210" y="161">INFERNO</text>
+              <text x="210" y="389">o arquivo começa no centro</text>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <footer className="flex items-center justify-between border-t border-border pt-5 text-xs text-muted-foreground">
+        <span>texto, pesquisa, código e imagem fazem parte da pista</span>
+        <span className="font-mono">01—30</span>
+      </footer>
     </main>
   )
 }
