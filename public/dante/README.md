@@ -2,16 +2,18 @@
 
 ## Leituras licenciadas
 
-- `leitura-inferno-iii.ogg`: Alessandro Sorrentino, leitura do canto III do
+- `registro-a.ogg`: Alessandro Sorrentino, leitura do canto III do
   *Inferno*. Arquivo publicado no Wikimedia Commons sob CC BY-SA 2.5:
   <https://commons.wikimedia.org/wiki/File:AlessandroSorrentinoIII_InfernoDante.ogg>
-- `leitura-inferno-v.ogg`: Alessandro Sorrentino, leitura do canto V do
+- `registro-b.ogg`: Alessandro Sorrentino, leitura do canto V do
   *Inferno*. Arquivo publicado no Wikimedia Commons sob CC BY-SA 2.5:
   <https://commons.wikimedia.org/wiki/File:AlessandroSorrentinoV_InfernoDante.ogg>
 
-Os arquivos foram baixados dos originais do Wikimedia Commons em 22/09/2026.
-As adaptações locais são apenas a cópia para distribuição junto do jogo; a
-licença CC BY-SA 2.5 continua valendo.
+Os arquivos foram baixados dos originais do Wikimedia Commons em 22/09/2026 e
+recebem nomes neutros no jogo para não transformar a etiqueta do player em uma
+resposta. Os metadados editoriais dos arquivos também foram removidos; a
+atribuição e a licença continuam registradas aqui. As adaptações locais são
+distribuídas sob CC BY-SA 2.5.
 
 ## Referências musicais externas
 

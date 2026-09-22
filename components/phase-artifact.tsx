@@ -86,6 +86,26 @@ function SentencePlate({ title, lines, marks = 3 }: { title: string; lines: stri
   )
 }
 
+function CipherPlate() {
+  return (
+    <Plate label="folha deslocada">
+      <div className="grid gap-5">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">folha sem origem</span>
+          <span className="font-mono text-xs text-amber-200/80">III</span>
+        </div>
+        <p className="break-words font-mono text-lg leading-relaxed tracking-[.08em] text-foreground sm:text-xl">
+          ULPLQL / GRLV QRPHV / XP OLYUR / YHQWR
+        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 text-xs text-muted-foreground" data-nota="a mesma distância em todas as letras">
+          <span>margem: III</span>
+          <span>cada letra conserva a distância</span>
+        </div>
+      </div>
+    </Plate>
+  )
+}
+
 function Mountain({ highlight }: { highlight: number }) {
   return (
     <Plate label="montanha do purgatório com nove estações">
@@ -129,18 +149,21 @@ function Sphere({ highlight, title }: { highlight: number; title: string }) {
   )
 }
 
-function LicensedReading({ src, title, canto }: { src: string; title: string; canto: string }) {
+function LicensedReading({ src, title }: { src: string; title: string }) {
   return (
     <Plate label={title}>
       <div className="grid gap-4">
         <div className="flex items-center justify-between border-b border-border pb-3">
-          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">arquivo sonoro</span>
-          <span className="font-mono text-xs text-amber-200/80">{canto}</span>
+          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">pista sonora</span>
+          <span className="font-mono text-xs text-muted-foreground">registro {title.slice(-1)}</span>
         </div>
         <audio controls preload="metadata" src={src} className="w-full" aria-label={title} />
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          leitura em italiano por Alessandro Sorrentino · Wikimedia Commons · CC BY-SA 2.5
-        </p>
+        <details className="text-xs leading-relaxed text-muted-foreground">
+          <summary className="cursor-pointer underline underline-offset-4">créditos do registro</summary>
+          <p className="mt-2">
+            leitura em italiano por Alessandro Sorrentino · Wikimedia Commons · CC BY-SA 2.5. A identificação completa da fonte está no arquivo de créditos do projeto.
+          </p>
+        </details>
       </div>
     </Plate>
   )
@@ -177,14 +200,14 @@ function SymbolArtifact({ media }: { media: ArtifactKind }) {
       return (
         <section className="flex flex-col gap-6">
           <CharacterCard symbol="V" title="um castelo sem tormento" lines={["quatro nomes da antiguidade", "uma quinta voz latina", "nenhuma chama, nenhum batismo"]} />
-          <LicensedReading src="/dante/leitura-inferno-iii.ogg" title="leitura do portal e do primeiro círculo" canto="Inferno III" />
+          <LicensedReading src="/dante/registro-a.ogg" title="registro vocal A" />
         </section>
       )
     case "wind":
       return (
         <section className="flex flex-col gap-6">
-          <SentencePlate title="a corrente" lines={["não há chão para os pés.", "dois nomes ficam unidos pelo movimento.", "a testemunha fala no feminino."]} />
-          <LicensedReading src="/dante/leitura-inferno-v.ogg" title="leitura do encontro na tempestade" canto="Inferno V" />
+          <CipherPlate />
+          <LicensedReading src="/dante/registro-b.ogg" title="registro vocal B" />
         </section>
       )
     case "rain":
@@ -306,23 +329,23 @@ export function PhaseArtifact({ media }: { media?: ArtifactKind }) {
   return <section className="flex flex-col gap-6">{media ? <SymbolArtifact media={media} /> : <SymbolArtifact media="gate" />}</section>
 }
 
-export function PhaseFooter({ index, cantica, unit }: { index: number; cantica: string; unit: string }) {
+export function PhaseFooter({ index, cantica }: { index: number; cantica: string }) {
   return (
     <footer className="flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
       <div className="flex items-center gap-2">
         <FlowerMark className="size-4" />
-        <span>vigília · {cantica} · {unit}</span>
+        <span>vigília · {cantica} · registro incompleto</span>
       </div>
       <span className="font-mono tabular-nums">{String(index).padStart(2, "0")}/30</span>
     </footer>
   )
 }
 
-export function CanticaMark({ cantica, unit }: { cantica: string; unit: string }) {
+export function CanticaMark({ cantica }: { cantica: string }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border pb-4 text-xs text-muted-foreground">
       <span className="font-mono uppercase tracking-[.18em]">{cantica}</span>
-      <span className="font-serif italic">{unit}</span>
+      <span className="font-serif italic">registro incompleto</span>
     </div>
   )
 }

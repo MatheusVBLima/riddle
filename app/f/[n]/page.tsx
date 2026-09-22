@@ -43,10 +43,9 @@ export default async function PhasePage({ params }: Props) {
   return (
     <main
       data-phase={phase.index}
-      data-cantica={phase.cantica}
       className="dante-page mx-auto flex min-h-svh w-full max-w-4xl flex-col gap-8 px-4 py-8 sm:gap-10 sm:px-8 sm:py-12"
     >
-      <CanticaMark cantica={phase.cantica} unit={phase.unit} />
+      <CanticaMark cantica={phase.cantica} />
 
       <header className="flex items-end justify-between gap-4 border-b border-border pb-6 sm:gap-6 sm:pb-8">
         <div className="flex items-end gap-5">
@@ -69,7 +68,7 @@ export default async function PhasePage({ params }: Props) {
 
       {phase.index !== 30 && <AnswerForm index={phase.index} />}
       <HintPanel index={phase.index} />
-      <PhaseFooter index={phase.index} cantica={phase.cantica} unit={phase.unit} />
+      <PhaseFooter index={phase.index} cantica={phase.cantica} />
     </main>
   )
 }
