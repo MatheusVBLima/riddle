@@ -16,30 +16,3 @@ writeFileSync(root + "/porta.svg", svg("Porta de três alturas", '<path d="M205 
 writeFileSync(root + "/montanha.svg", svg("Montanha de nove estações", '<path d="M98 410 Q220 360 292 278 Q340 220 360 60 Q380 220 428 278 Q500 360 622 410Z" fill="#201e1c" stroke="#8d8578" stroke-width="2"/><g stroke="#c9944f" stroke-width="2">' + Array.from({ length: 9 }, (_, i) => '<path d="M' + (180 + i * 20) + ' ' + (398 - i * 39) + 'H' + (540 - i * 20) + '"/>').join("") + '</g>'))
 writeFileSync(root + "/esferas.svg", svg("Esferas celestes", Array.from({ length: 9 }, (_, i) => '<circle cx="360" cy="220" r="' + (186 - i * 18) + '" fill="none" stroke="' + (i === 8 ? "#c9944f" : "#6d685f") + '" stroke-width="' + (i === 8 ? "3" : "1") + '"/>').join("") + '<circle cx="360" cy="220" r="7" fill="#e9e4d8"/>'))
 
-const rate = 44_100
-const seconds = 8
-const samples = new Float32Array(rate * seconds)
-for (let i = 0; i < samples.length; i++) {
-  const t = i / rate
-  const low = Math.sin(2 * Math.PI * 72 * t) * Math.exp(-t * .2) * .035
-  const flame = Math.sin(2 * Math.PI * (220 + 80 * Math.sin(t * 1.8)) * t) * (0.02 + Math.max(0, Math.sin(t * 7)) * .015)
-  samples[i] = low + flame
-}
-const pcm = Buffer.alloc(samples.length * 2)
-for (let i = 0; i < samples.length; i++) pcm.writeInt16LE(Math.round(Math.max(-1, Math.min(1, samples[i])) * 32767), i * 2)
-const header = Buffer.alloc(44)
-header.write("RIFF", 0)
-header.writeUInt32LE(36 + pcm.length, 4)
-header.write("WAVE", 8)
-header.write("fmt ", 12)
-header.writeUInt32LE(16, 16)
-header.writeUInt16LE(1, 20)
-header.writeUInt16LE(1, 22)
-header.writeUInt32LE(rate, 24)
-header.writeUInt32LE(rate * 2, 28)
-header.writeUInt16LE(2, 32)
-header.writeUInt16LE(16, 34)
-header.write("data", 36)
-header.writeUInt32LE(pcm.length, 40)
-writeFileSync(root + "/chama.wav", Buffer.concat([header, pcm]))
-

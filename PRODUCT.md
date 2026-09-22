@@ -18,6 +18,8 @@ O jogo se inspira na obra de Dante Alighieri sem depender de uma tradução espe
 
 Sombria, investigativa, curiosa e literária. O jogo não exige leitura integral da obra nem conhecimento de italiano. Cada enigma dá uma âncora de pesquisa reconhecível e pede uma dedução a partir de mais de um fato.
 
+As pistas sonoras usam leituras reais de cantos do *Inferno* com licença CC BY-SA 2.5. As fases de música apontam para gravações de referência da *Dante Symphony* de Liszt, com atribuição e licença documentadas junto dos assets.
+
 ## Regras
 
 - Não copiar trechos longos de traduções modernas.

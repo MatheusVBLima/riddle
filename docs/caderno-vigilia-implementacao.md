@@ -37,7 +37,8 @@ A interface usa carvão, papel escuro e ocre. Os diagramas em \`components/phase
 - \`porta.svg\`;
 - \`montanha.svg\`;
 - \`esferas.svg\`;
-- \`chama.wav\`.
+- \`leitura-inferno-iii.ogg\` e \`leitura-inferno-v.ogg\`, leituras reais de Dante sob CC BY-SA 2.5;
+- \`README.md\` registra atribuição e links das fontes musicais externas.
 
 Regenerar com \`bun run assets:dante\`.
 

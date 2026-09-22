@@ -129,12 +129,64 @@ function Sphere({ highlight, title }: { highlight: number; title: string }) {
   )
 }
 
+function LicensedReading({ src, title, canto }: { src: string; title: string; canto: string }) {
+  return (
+    <Plate label={title}>
+      <div className="grid gap-4">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">arquivo sonoro</span>
+          <span className="font-mono text-xs text-amber-200/80">{canto}</span>
+        </div>
+        <audio controls preload="metadata" src={src} className="w-full" aria-label={title} />
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          leitura em italiano por Alessandro Sorrentino · Wikimedia Commons · CC BY-SA 2.5
+        </p>
+      </div>
+    </Plate>
+  )
+}
+
+function MusicReference({ videoId, title, movement }: { videoId: string; title: string; movement: string }) {
+  return (
+    <Plate label={title}>
+      <div className="grid gap-4">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">escuta de referência</span>
+          <span className="font-mono text-xs text-amber-200/80">Liszt · {movement}</span>
+        </div>
+        <div className="aspect-video overflow-hidden border border-border bg-background">
+          <iframe
+            className="size-full"
+            src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0`}
+            title={title}
+            loading="lazy"
+            allow="encrypted-media; picture-in-picture"
+          />
+        </div>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          gravação indicada pelo IMSLP · <a className="underline underline-offset-4" href="https://imslp.org/wiki/Dante_Symphony_(Liszt,_Franz)" target="_blank" rel="noreferrer">ver referência e créditos</a>
+        </p>
+      </div>
+    </Plate>
+  )
+}
+
 function SymbolArtifact({ media }: { media: ArtifactKind }) {
   switch (media) {
     case "limbo":
-      return <CharacterCard symbol="V" title="um castelo sem tormento" lines={["quatro nomes da antiguidade", "uma quinta voz latina", "nenhuma chama, nenhum batismo"]} />
+      return (
+        <section className="flex flex-col gap-6">
+          <CharacterCard symbol="V" title="um castelo sem tormento" lines={["quatro nomes da antiguidade", "uma quinta voz latina", "nenhuma chama, nenhum batismo"]} />
+          <LicensedReading src="/dante/leitura-inferno-iii.ogg" title="leitura do portal e do primeiro círculo" canto="Inferno III" />
+        </section>
+      )
     case "wind":
-      return <SentencePlate title="a corrente" lines={["não há chão para os pés.", "dois nomes ficam unidos pelo movimento.", "a testemunha fala no feminino."]} />
+      return (
+        <section className="flex flex-col gap-6">
+          <SentencePlate title="a corrente" lines={["não há chão para os pés.", "dois nomes ficam unidos pelo movimento.", "a testemunha fala no feminino."]} />
+          <LicensedReading src="/dante/leitura-inferno-v.ogg" title="leitura do encontro na tempestade" canto="Inferno V" />
+        </section>
+      )
     case "rain":
       return <SentencePlate title="chuva sem margem" lines={["três bocas.", "um nome de cidadão.", "o céu nunca se abre."]} marks={3} />
     case "weights":
@@ -147,14 +199,10 @@ function SymbolArtifact({ media }: { media: ArtifactKind }) {
       return <SentencePlate title="nível do rio" lines={["o sangue sobe conforme a culpa.", "um corpo híbrido guarda a passagem.", "a flecha mede a distância."]} marks={6} />
     case "flame":
       return (
-        <Plate label="chama dupla">
-          <div className="grid gap-4">
-            <audio controls preload="metadata" src="/dante/chama.wav" className="w-full" aria-label="gravação de uma chama com duas vozes sobrepostas" />
-            <div className="grid grid-cols-2 gap-3 font-mono text-xs text-muted-foreground">
-              <span>uma luz</span><span>duas vozes</span><span>uma rota</span><span>nenhuma autorização</span>
-            </div>
-          </div>
-        </Plate>
+        <section className="flex flex-col gap-6">
+          <SentencePlate title="chama dupla" lines={["uma luz.", "duas vozes.", "uma rota.", "nenhuma autorização."]} marks={8} />
+          <MusicReference videoId="hty3lZSYIww" title="Sinfonia Dante — Inferno" movement="Inferno" />
+        </section>
       )
     case "ice":
       return <SentencePlate title="cocito" lines={["o centro é imóvel.", "a boca trabalha sem fome.", "a história começa numa torre."]} marks={9} />
@@ -173,7 +221,12 @@ function SymbolArtifact({ media }: { media: ArtifactKind }) {
     case "fruit":
       return <SentencePlate title="árvore" lines={["água perto.", "fruto fora do alcance.", "fome que não é só do corpo."]} marks={6} />
     case "fire":
-      return <SentencePlate title="parede" lines={["a passagem arde.", "a forma antiga fica para trás.", "uma voz estrangeira espera do outro lado."]} marks={7} />
+      return (
+        <section className="flex flex-col gap-6">
+          <SentencePlate title="parede" lines={["a passagem arde.", "a forma antiga fica para trás.", "uma voz estrangeira espera do outro lado."]} marks={7} />
+          <MusicReference videoId="GbZTnsr3TuA" title="Sinfonia Dante — Purgatorio" movement="Purgatorio" />
+        </section>
+      )
     case "garden":
       return <CharacterCard symbol="B" title="o jardim no alto" lines={["duas águas", "uma mulher entre árvores", "um guia muda de rosto"]} />
     case "moon":
