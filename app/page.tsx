@@ -4,18 +4,18 @@ import { ResumeLink } from "@/components/resume-link"
 
 export default function Page() {
   return (
-    <main className="dante-home mx-auto flex min-h-svh w-full max-w-5xl flex-col justify-between gap-16 px-6 py-10 sm:px-10 sm:py-14">
+    <main className="dante-home mx-auto flex min-h-svh w-full max-w-4xl flex-col justify-between gap-12 px-4 py-8 sm:gap-16 sm:px-8 sm:py-12">
       <header className="flex items-center justify-between border-b border-border pb-5">
         <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">ARQUIVO · 1300</span>
         <span className="font-mono text-xs text-muted-foreground">VIGÍLIA / 30</span>
       </header>
 
-      <section className="grid items-end gap-10 lg:grid-cols-[1.2fr_.8fr]">
+      <section className="grid items-end gap-8 lg:grid-cols-[1.15fr_.85fr] lg:gap-10">
         <div className="flex flex-col gap-8">
-          <h1 className="max-w-3xl font-serif text-6xl leading-[.9] tracking-[-.03em] sm:text-8xl">
+          <h1 className="max-w-3xl font-serif text-5xl leading-[.92] tracking-[-.03em] sm:text-7xl">
             uma viagem<br />em três alturas
           </h1>
-          <p className="max-w-xl font-serif text-xl leading-relaxed text-foreground/80">
+          <p className="max-w-xl font-serif text-lg leading-relaxed text-foreground/80 sm:text-xl">
             Um arquivo dantesco em trinta fases. Pesquise os sinais, atravesse as estruturas e descubra o que se repete quando o mundo muda de forma.
           </p>
           <div className="flex flex-wrap items-center gap-5">
@@ -25,7 +25,7 @@ export default function Page() {
         </div>
 
         <div className="dante-home-diagram" aria-label="Diagrama de três anéis: Inferno, Purgatório e Paraíso">
-          <svg viewBox="0 0 420 420" role="img" className="dante-svg">
+          <svg viewBox="0 0 420 420" role="img" className="dante-svg max-h-[26rem]">
             <circle cx="210" cy="210" r="176" fill="none" stroke="#5e5a52" />
             <circle cx="210" cy="210" r="122" fill="none" stroke="#8d8578" />
             <circle cx="210" cy="210" r="68" fill="none" stroke="#c9944f" strokeWidth="2" />

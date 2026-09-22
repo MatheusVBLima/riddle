@@ -44,14 +44,14 @@ export default async function PhasePage({ params }: Props) {
     <main
       data-phase={phase.index}
       data-cantica={phase.cantica}
-      className="dante-page mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-10 px-6 py-12 sm:px-10 sm:py-16"
+      className="dante-page mx-auto flex min-h-svh w-full max-w-4xl flex-col gap-8 px-4 py-8 sm:gap-10 sm:px-8 sm:py-12"
     >
       <CanticaMark cantica={phase.cantica} unit={phase.unit} />
 
-      <header className="flex items-end justify-between gap-6 border-b border-border pb-8">
+      <header className="flex items-end justify-between gap-4 border-b border-border pb-6 sm:gap-6 sm:pb-8">
         <div className="flex items-end gap-5">
           <span className="dante-index" aria-hidden="true">{String(phase.index).padStart(2, "0")}</span>
-          <h1 className="max-w-2xl text-balance font-serif text-3xl leading-tight sm:text-5xl">
+          <h1 className="max-w-2xl text-balance font-serif text-2xl leading-tight sm:text-4xl">
             <span className="sr-only">Fase {phase.index}: </span>{phase.name}
           </h1>
         </div>
@@ -61,7 +61,7 @@ export default async function PhasePage({ params }: Props) {
       <PhaseArtifact media={phase.artifact} />
 
       <p
-        className="max-w-3xl whitespace-pre-line text-pretty font-serif text-lg leading-relaxed text-foreground/90 sm:text-xl"
+        className="max-w-3xl whitespace-pre-line text-pretty font-serif text-base leading-relaxed text-foreground/90 sm:text-lg"
         {...(phase.promptAttributes && safeAttributes(phase.promptAttributes))}
       >
         {phase.prompt}

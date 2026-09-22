@@ -218,9 +218,9 @@
 .dante-index {
   color: #c9944f;
   font-family: var(--font-mono);
-  font-size: clamp(3.5rem, 10vw, 7.5rem);
-  letter-spacing: -.08em;
-  line-height: .78;
+  font-size: clamp(2.5rem, 8vw, 5.5rem);
+  letter-spacing: -.07em;
+  line-height: .82;
   font-variant-numeric: tabular-nums;
 }
 
@@ -230,7 +230,7 @@
   margin: 0;
   border: 1px solid color-mix(in oklab, var(--border) 88%, #c9944f 12%);
   background: color-mix(in oklab, var(--card) 92%, #c9944f 8%);
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: clamp(.85rem, 2.5vw, 1.5rem);
 }
 
 .dante-plate::after {
@@ -314,8 +314,8 @@
 }
 
 @media (max-width: 640px) {
-  .dante-index { font-size: 4.5rem; }
-  .dante-page { gap: 2.5rem; }
+  .dante-index { font-size: 3.5rem; }
+  .dante-page { gap: 2rem; }
 }
 
 .phase-crescent,
