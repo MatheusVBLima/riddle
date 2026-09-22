@@ -8,6 +8,8 @@
 - `registro-b.ogg`: Alessandro Sorrentino, leitura do canto V do
   *Inferno*. Arquivo publicado no Wikimedia Commons sob CC BY-SA 2.5:
   <https://commons.wikimedia.org/wiki/File:AlessandroSorrentinoV_InfernoDante.ogg>
+- `registro-c.wav`: sinal original do jogo, sem conteúdo verbal. As pulsações
+  são uma pista de análise de forma de onda e não uma gravação documental.
 
 Os arquivos foram baixados dos originais do Wikimedia Commons em 22/09/2026 e
 recebem nomes neutros no jogo para não transformar a etiqueta do player em uma

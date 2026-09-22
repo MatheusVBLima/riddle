@@ -106,6 +106,30 @@ function CipherPlate() {
   )
 }
 
+function SignalArtifact() {
+  return (
+    <Plate label="sinal sem legenda">
+      <div className="grid gap-5">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">registro C</span>
+          <span className="font-mono text-xs text-muted-foreground">sem legenda</span>
+        </div>
+        <svg viewBox="0 0 720 150" role="img" aria-label="Forma de onda abstrata com três intervalos" className="dante-svg">
+          <rect width="720" height="150" fill="#101012" />
+          <path d="M24 75H696" stroke="#4d4a45" strokeDasharray="2 10" />
+          <path d="M24 75H112M132 75V42H156V108H180V75M220 75V34H244V116H268V75M308 75V48H332V102H356V75M428 75V38H452V112H476V75M548 75V45H572V105H596V75M636 75H696" fill="none" stroke="#c9944f" strokeWidth="3" />
+        </svg>
+        <audio controls preload="metadata" className="w-full" aria-label="registro C">
+          <source src="/dante/registro-c.wav" type="audio/wav" />
+        </audio>
+        <p className="text-xs leading-relaxed text-muted-foreground" data-nota="compare a forma em velocidades diferentes">
+          a forma não é a mensagem
+        </p>
+      </div>
+    </Plate>
+  )
+}
+
 function Mountain({ highlight }: { highlight: number }) {
   return (
     <Plate label="montanha do purgatório com nove estações">
@@ -211,43 +235,43 @@ function SymbolArtifact({ media }: { media: ArtifactKind }) {
         </section>
       )
     case "rain":
-      return <SentencePlate title="chuva sem margem" lines={["três bocas.", "um nome de cidadão.", "o céu nunca se abre."]} marks={3} />
+      return <SignalArtifact />
     case "weights":
-      return <SentencePlate title="peso contra peso" lines={["duas procissões.", "uma palavra grega para riqueza.", "a roda não chega a lugar algum."]} marks={4} />
+      return <SentencePlate title="sinal D" lines={["duas sequências.", "sentidos opostos.", "uma posição desaparece."]} marks={4} />
     case "river":
-      return <SentencePlate title="água escura" lines={["lama na superfície.", "um rosto de Argenti.", "a ira não deixa a margem."]} marks={5} />
+      return <SentencePlate title="duas camadas" lines={["uma margem invertida.", "um sobrenome separado.", "a leitura acontece ao contrário."]} marks={5} />
     case "tombs":
-      return <CharacterCard symbol="X" title="uma pedra em fogo" lines={["tumbas levantadas", "visão do futuro", "Florença ainda é uma disputa"]} />
+      return <CharacterCard symbol="X" title="grade E" lines={["coordenadas deslocadas", "presente ausente", "uma cidade em disputa"]} />
     case "blood":
-      return <SentencePlate title="nível do rio" lines={["o sangue sobe conforme a culpa.", "um corpo híbrido guarda a passagem.", "a flecha mede a distância."]} marks={6} />
+      return <SentencePlate title="limiar F" lines={["níveis diferentes.", "metades incompletas.", "um centro bloqueado."]} marks={6} />
     case "flame":
       return (
         <section className="flex flex-col gap-6">
-          <SentencePlate title="chama dupla" lines={["uma luz.", "duas vozes.", "uma rota.", "nenhuma autorização."]} marks={8} />
-          <MusicReference videoId="hty3lZSYIww" title="Sinfonia Dante — Inferno" movement="Inferno" />
+          <SentencePlate title="dois canais" lines={["uma faixa contínua.", "duas leituras.", "um limite no mapa.", "uma cidade distante."]} marks={8} />
+          <MusicReference videoId="hty3lZSYIww" title="escuta de referência · registro D" movement="movimento I" />
         </section>
       )
     case "ice":
-      return <SentencePlate title="cocito" lines={["o centro é imóvel.", "a boca trabalha sem fome.", "a história começa numa torre."]} marks={9} />
+      return <SentencePlate title="grade G" lines={["o centro não se move.", "três por três.", "um calendário incompleto."]} marks={9} />
     case "shore":
-      return <SentencePlate title="a praia" lines={["o guardião não é um anjo.", "a espada fica baixa.", "liberdade antes da subida."]} marks={2} />
+      return <SentencePlate title="horizonte A" lines={["duas línguas.", "uma margem.", "uma figura sem nome."]} marks={2} />
     case "marble":
       return <Mountain highlight={1} />
     case "eyes":
-      return <SentencePlate title="sem olhar" lines={["o fio fecha os olhos.", "a roupa tem uma cor.", "o pedido vem de uma voz invisível."]} marks={2} />
+      return <SentencePlate title="duas camadas" lines={["contornos.", "um canal por vez.", "a mesma falta."]} marks={2} />
     case "smoke":
-      return <SentencePlate title="fumaça" lines={["a montanha desaparece.", "a conversa continua.", "liberdade contra os astros."]} marks={3} />
+      return <SentencePlate title="contraste B" lines={["uma camada vazia.", "falas fora de ordem.", "liberdade e céu."]} marks={3} />
     case "race":
-      return <SentencePlate title="movimento" lines={["a demora virou corrida.", "ninguém termina antes dos outros.", "o amor deveria ter começado antes."]} marks={4} />
+      return <SentencePlate title="intervalos C" lines={["pontos em movimento.", "chegadas diferentes.", "uma pergunta repetida."]} marks={4} />
     case "earth":
       return <Mountain highlight={5} />
     case "fruit":
-      return <SentencePlate title="árvore" lines={["água perto.", "fruto fora do alcance.", "fome que não é só do corpo."]} marks={6} />
+      return <SentencePlate title="distâncias D" lines={["pontos próximos.", "sílabas fora de ordem.", "uma falta depois da refeição."]} marks={6} />
     case "fire":
       return (
         <section className="flex flex-col gap-6">
-          <SentencePlate title="parede" lines={["a passagem arde.", "a forma antiga fica para trás.", "uma voz estrangeira espera do outro lado."]} marks={7} />
-          <MusicReference videoId="GbZTnsr3TuA" title="Sinfonia Dante — Purgatorio" movement="Purgatorio" />
+          <SentencePlate title="sete faixas" lines={["interrupções.", "palavras que atravessam.", "uma voz muda."]} marks={7} />
+          <MusicReference videoId="GbZTnsr3TuA" title="escuta de referência · registro E" movement="movimento II" />
         </section>
       )
     case "garden":
@@ -262,34 +286,34 @@ function SymbolArtifact({ media }: { media: ArtifactKind }) {
       return <Sphere highlight={3} title="a quarta esfera" />
     case "cross":
       return (
-        <Plate label="cruz de luz na esfera de Marte">
+        <Plate label="composição geométrica">
           <svg viewBox="0 0 720 460" role="img" className="dante-svg">
             <rect width="720" height="460" fill="#101012" />
-            <path d="M360 60V390M175 225H545" stroke="#c9944f" strokeWidth="10" />
-            {Array.from({ length: 18 }, (_, index) => <circle key={index} cx={200 + (index % 9) * 40} cy={130 + Math.floor(index / 9) * 190} r="4" fill="#e9e4d8" />)}
-            <text x="360" y="35" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">um ancestral aguarda no braço direito</text>
+            <path d="M170 90H550M170 230H550M170 370H550M230 50V410M360 50V410M490 50V410" stroke="#5e5a52" strokeWidth="1" />
+            {Array.from({ length: 18 }, (_, index) => <circle key={index} cx={230 + (index % 3) * 130} cy={90 + Math.floor(index / 3) * 70} r={index % 4 === 0 ? 6 : 3} fill={index % 4 === 0 ? "#c9944f" : "#e9e4d8"} />)}
+            <text x="360" y="35" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">pontos e traços · uma partida</text>
           </svg>
         </Plate>
       )
     case "eagle":
-      return <CharacterCard symbol="A" title="muitas vozes, um corpo" lines={["letras que formam uma sentença", "justiça como figura", "um bico aponta para o centro"]} />
+      return <CharacterCard symbol="∴" title="rota de letras" lines={["uma frase incompleta", "uma célula marcada", "justiça sem nome"]} />
     case "ladder":
       return (
-        <Plate label="escada dourada entre esferas">
+        <Plate label="colunas em movimento">
           <svg viewBox="0 0 720 460" role="img" className="dante-svg">
             <rect width="720" height="460" fill="#101012" />
-            <path d="M222 386L400 70M310 386L488 70" stroke="#c9944f" strokeWidth="4" />
+            <path d="M222 386V70M310 386V70M400 386V70M488 386V70" stroke="#c9944f" strokeWidth="2" />
             {Array.from({ length: 10 }, (_, index) => {
               const y = 370 - index * 31
-              const left = 231 + index * 17.7
-              return <path key={index} d={"M" + left + " " + y + "H" + (left + 88)} stroke="#e9e4d8" strokeWidth="2" />
+              const left = 205 + (index % 4) * 90
+              return <path key={index} d={"M" + left + " " + y + "H" + (left + 52)} stroke="#e9e4d8" strokeWidth="2" />
             })}
-            <text x="360" y="425" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">o silêncio também pode ser um guia</text>
+            <text x="360" y="425" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">leitura vertical · intervalos</text>
           </svg>
         </Plate>
       )
     case "virtues":
-      return <SentencePlate title="três exames" lines={["acreditar", "esperar", "amar"]} marks={3} />
+      return <SentencePlate title="três perguntas" lines={["símbolo I", "símbolo II", "símbolo III"]} marks={3} />
     case "angels":
       return <Sphere highlight={8} title="o movimento de tudo" />
     case "gate":
