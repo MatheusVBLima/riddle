@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { ResumeLink } from "@/components/resume-link"
+import { Button } from "@/components/ui/button"
 
 export default function Page() {
   return (
@@ -19,7 +20,13 @@ export default function Page() {
             Um arquivo dantesco em trinta fases. Pesquise os sinais, atravesse as estruturas e descubra o que se repete quando o mundo muda de forma.
           </p>
           <div className="flex flex-wrap items-center gap-5">
-            <Link href="/f/1" className="dante-cta">abrir o arquivo</Link>
+            <Button
+              render={<Link href="/f/1" />}
+              size="lg"
+              className="h-11 px-5 font-mono text-xs font-medium tracking-[.16em] uppercase shadow-lg shadow-black/20"
+            >
+              abrir o arquivo
+            </Button>
             <ResumeLink />
           </div>
         </div>

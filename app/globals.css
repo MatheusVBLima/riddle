@@ -194,7 +194,8 @@
     }
   html {
     @apply font-sans;
-    }
+    color-scheme: dark;
+  }
 }
 
 /* A linguagem visual do arquivo dantesco: carvão, papel antigo e ocre. */
@@ -277,23 +278,6 @@
   height: .35rem;
   border-radius: 999px;
   background: #c9944f;
-}
-
-.dante-cta {
-  border-bottom: 1px solid #c9944f;
-  padding-bottom: .3rem;
-  color: #e9e4d8;
-  font-family: var(--font-mono);
-  font-size: .8rem;
-  letter-spacing: .12em;
-  text-transform: lowercase;
-  transition: color .2s ease, border-color .2s ease;
-}
-
-.dante-cta:hover,
-.dante-cta:focus-visible {
-  border-color: #e9e4d8;
-  color: #c9944f;
 }
 
 .dante-home-diagram {

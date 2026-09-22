@@ -3,6 +3,7 @@
 import Link from "next/link"
 import * as React from "react"
 
+import { Button } from "@/components/ui/button"
 import { furthestReached } from "@/lib/progress"
 
 // localStorage é um store externo ao React, e o progresso não muda enquanto
@@ -23,11 +24,8 @@ export function ResumeLink() {
   if (reached <= 1) return null
 
   return (
-    <Link
-      href={`/f/${reached}`}
-      className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
-    >
+    <Button render={<Link href={`/f/${reached}`} />} variant="outline" size="sm" className="font-mono text-xs tracking-[.08em]">
       Voltar para a {reached}ª
-    </Link>
+    </Button>
   )
 }
