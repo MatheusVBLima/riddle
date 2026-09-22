@@ -149,7 +149,7 @@ function Sphere({ highlight, title }: { highlight: number; title: string }) {
   )
 }
 
-function LicensedReading({ src, title }: { src: string; title: string }) {
+function LicensedReading({ src, title, source }: { src: string; title: string; source: string }) {
   return (
     <Plate label={title}>
       <div className="grid gap-4">
@@ -161,7 +161,7 @@ function LicensedReading({ src, title }: { src: string; title: string }) {
         <details className="text-xs leading-relaxed text-muted-foreground">
           <summary className="cursor-pointer underline underline-offset-4">créditos do registro</summary>
           <p className="mt-2">
-            leitura em italiano por Alessandro Sorrentino · Wikimedia Commons · CC BY-SA 2.5. A identificação completa da fonte está no arquivo de créditos do projeto.
+            leitura em italiano por Alessandro Sorrentino · <a className="underline underline-offset-4" href={source} target="_blank" rel="noreferrer">Wikimedia Commons</a> · CC BY-SA 2.5.
           </p>
         </details>
       </div>
@@ -200,14 +200,14 @@ function SymbolArtifact({ media }: { media: ArtifactKind }) {
       return (
         <section className="flex flex-col gap-6">
           <CharacterCard symbol="V" title="um castelo sem tormento" lines={["quatro nomes da antiguidade", "uma quinta voz latina", "nenhuma chama, nenhum batismo"]} />
-          <LicensedReading src="/dante/registro-a.ogg" title="registro vocal A" />
+          <LicensedReading src="/dante/registro-a.ogg" title="registro vocal A" source="https://commons.wikimedia.org/wiki/File:AlessandroSorrentinoIII_InfernoDante.ogg" />
         </section>
       )
     case "wind":
       return (
         <section className="flex flex-col gap-6">
           <CipherPlate />
-          <LicensedReading src="/dante/registro-b.ogg" title="registro vocal B" />
+          <LicensedReading src="/dante/registro-b.ogg" title="registro vocal B" source="https://commons.wikimedia.org/wiki/File:AlessandroSorrentinoV_InfernoDante.ogg" />
         </section>
       )
     case "rain":
