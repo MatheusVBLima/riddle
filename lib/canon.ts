@@ -4,8 +4,8 @@ export const CANTICAS = ["inferno", "purgatorio", "paradiso"] as const
 export type Cantica = (typeof CANTICAS)[number]
 
 export const META_TRANSITIONS = {
-  10: "PURGATÓRIO",
-  20: "PARAÍSO",
+  10: "EMISFERIO",
+  20: "RENASCIDO",
   30: "STELLE",
 } as const
 
@@ -43,20 +43,6 @@ export const PARADISO_SPHERES = [
   "saturno",
   "estrelas fixas",
   "primum mobile",
-] as const
-
-export const CANTICA_ENDINGS = ["estrelas", "estrelas", "estrelas"] as const
-
-export const FINAL_LETTERS = ["S", "T", "E", "L", "L", "E"] as const
-
-/** Compatibilidade para scripts de assets legados que continuam no repositório. */
-export const PETALAS_18 = [1, 5, 3, 9, 2, 6, 11, 4] as const
-export const QUADRADO_POLIBIO = [
-  ["G", "U", "A", "R", "D"],
-  ["B", "C", "E", "F", "H"],
-  ["IJ", "K", "L", "M", "N"],
-  ["O", "P", "Q", "S", "T"],
-  ["V", "W", "X", "Y", "Z"],
 ] as const
 
 /** Referências internas de revisão editorial; nunca chegam ao cliente. */

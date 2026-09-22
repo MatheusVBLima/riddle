@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { ProgressRings } from "@/components/progress-rings"
 import { ResumeLink } from "@/components/resume-link"
 import { Button } from "@/components/ui/button"
 
@@ -21,6 +22,7 @@ export default function Page() {
           </p>
           <div className="flex flex-wrap items-center gap-5">
             <Button
+              nativeButton={false}
               render={<Link href="/f/1" />}
               size="lg"
               className="h-11 px-5 font-mono text-xs font-medium tracking-[.16em] uppercase shadow-lg shadow-black/20"
@@ -31,25 +33,13 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="dante-home-diagram" aria-label="Diagrama de três anéis: Inferno, Purgatório e Paraíso">
-          <svg viewBox="0 0 420 420" role="img" className="dante-svg max-h-[26rem]">
-            <circle cx="210" cy="210" r="176" fill="none" stroke="#5e5a52" />
-            <circle cx="210" cy="210" r="122" fill="none" stroke="#8d8578" />
-            <circle cx="210" cy="210" r="68" fill="none" stroke="#c9944f" strokeWidth="2" />
-            <circle cx="210" cy="210" r="8" fill="#c9944f" />
-            <path d="M210 18V402M18 210H402" stroke="#5e5a52" strokeDasharray="2 9" />
-            <g fill="#e9e4d8" fontFamily="monospace" fontSize="11" textAnchor="middle">
-              <text x="210" y="48">PARAÍSO</text>
-              <text x="210" y="101">PURGATÓRIO</text>
-              <text x="210" y="161">INFERNO</text>
-              <text x="210" y="389">o arquivo começa no centro</text>
-            </g>
-          </svg>
+        <div className="dante-home-diagram">
+          <ProgressRings labels={["INFERNO", "PURGATÓRIO", "PARAÍSO"]} />
         </div>
       </section>
 
       <footer className="flex items-center justify-between border-t border-border pt-5 text-xs text-muted-foreground">
-        <span>texto, pesquisa, código e imagem fazem parte da pista</span>
+        <span>texto, imagem, aba e endereço fazem parte da pista</span>
         <span className="font-mono">01—30</span>
       </footer>
     </main>

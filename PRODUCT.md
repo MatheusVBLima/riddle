@@ -4,7 +4,7 @@
 
 Um puzzlehunt de navegador com 30 fases sobre a estrutura, os personagens e a cosmologia da Divina Comédia. O jogador pesquisa sinais na internet e cruza as descobertas com pistas plantadas na própria página.
 
-O jogo se inspira na obra de Dante Alighieri sem depender de uma tradução específica. A página, o título da aba, o SVG, o áudio, a URL e o código continuam sendo superfícies possíveis de pista.
+O jogo se inspira na obra de Dante Alighieri sem depender de uma tradução específica. As pistas vivem no que está na tela (texto, imagem, áudio), no título da aba e na URL. Nenhuma depende de inspecionar elemento, e nenhuma fase se resolve só lendo a página.
 
 ## Estrutura
 
@@ -18,7 +18,7 @@ O jogo se inspira na obra de Dante Alighieri sem depender de uma tradução espe
 
 Sombria, investigativa, curiosa e literária. O jogo não exige leitura integral da obra nem conhecimento de italiano. Cada enigma dá uma âncora de pesquisa reconhecível e pede uma dedução a partir de mais de um fato.
 
-As pistas sonoras usam leituras reais de cantos do *Inferno* com licença CC BY-SA 2.5. As fases de música apontam para gravações de referência da *Dante Symphony* de Liszt, com atribuição e licença documentadas junto dos assets.
+A fase 1 traz uma leitura real do canto III do *Inferno*, com licença CC BY-SA 2.5; a fase 3 usa um sinal sonoro original, gerado pelo próprio projeto. A atribuição fica documentada junto dos assets.
 
 ## Regras
 

@@ -1,90 +1,45 @@
-import type { ReactNode } from "react"
-
-import { FinalMetaPuzzle } from "@/components/final-meta-puzzle"
 import { FlowerMark } from "@/components/flower-mark"
+import {
+  BrokenVoices,
+  CrossingStrip,
+  FrozenGrid,
+  InfernoRings,
+  MudBubbles,
+  PitchRecord,
+  RiverDepths,
+  StoneGrid,
+  TwoChannels,
+} from "@/components/inferno-artifacts"
+import {
+  AngelRings,
+  CrossMorse,
+  CrownOfLights,
+  EagleDocument,
+  ExamBoard,
+  GoldenLadder,
+  MoonSurfaces,
+  OrbitPaths,
+  ParadisoSpheres,
+  SpiralRoute,
+} from "@/components/paradiso-artifacts"
+import { Plate } from "@/components/plate"
+import {
+  FireWall,
+  FruitShadows,
+  PavementCarvings,
+  ProneSouls,
+  PurgatorioMountain,
+  RiverBlind,
+  RunningSouls,
+  ShoreReflection,
+  SmokeScreen,
+  TwoWaters,
+} from "@/components/purgatorio-artifacts"
+import { levelFrom } from "@/lib/inferno-material"
 import type { ArtifactKind } from "@/lib/phases"
 
-function Plate({ children, label }: { children: ReactNode; label: string }) {
-  return (
-    <figure className="dante-plate" aria-label={label}>
-      {children}
-    </figure>
-  )
-}
-
-function RingMap({ highlight, label }: { highlight?: number; label: string }) {
-  return (
-    <Plate label={label}>
-      <svg viewBox="0 0 720 520" role="img" aria-labelledby="rings-title rings-desc" className="dante-svg">
-        <title id="rings-title">mapa concêntrico da descida</title>
-        <desc id="rings-desc">{label}</desc>
-        <rect width="720" height="520" fill="#101012" />
-        {Array.from({ length: 9 }, (_, index) => {
-          const radius = 216 - index * 22
-          const active = highlight === index
-          return (
-            <circle
-              key={index}
-              cx="360"
-              cy="255"
-              r={radius}
-              fill={active ? "rgba(201,148,79,.12)" : "none"}
-              stroke={active ? "#c9944f" : "#615d55"}
-              strokeWidth={active ? "3" : "1"}
-              strokeOpacity={active ? "1" : ".7"}
-            />
-          )
-        })}
-        <circle cx="360" cy="255" r="13" fill="#c9944f" />
-        <path d="M360 39V471M144 255H576" stroke="#615d55" strokeDasharray="3 10" opacity=".45" />
-        <g fill="#e9e4d8" fontFamily="monospace" fontSize="12" textAnchor="middle">
-          {Array.from({ length: 9 }, (_, index) => {
-            const angle = (index / 9) * Math.PI * 2 - Math.PI / 2
-            const radius = 216 - index * 22
-            const x = 360 + Math.cos(angle) * radius
-            const y = 255 + Math.sin(angle) * radius
-            return <text key={index} x={x} y={y - 8}>{String(index + 1).padStart(2, "0")}</text>
-          })}
-        </g>
-        <text x="360" y="493" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">a ordem importa mais que a distância</text>
-      </svg>
-    </Plate>
-  )
-}
-
-function CharacterCard({ symbol, title, lines }: { symbol: string; title: string; lines: string[] }) {
-  return (
-    <Plate label={title}>
-      <div className="grid gap-6 sm:grid-cols-[9rem_1fr]">
-        <div className="flex min-h-36 items-center justify-center border border-border bg-background">
-          <span className="font-serif text-7xl text-amber-200/80" aria-hidden="true">{symbol}</span>
-        </div>
-        <div className="flex flex-col justify-center gap-3">
-          <h2 className="font-serif text-2xl">{title}</h2>
-          <ul className="dante-ledger">
-            {lines.map((line) => <li key={line}>{line}</li>)}
-          </ul>
-        </div>
-      </div>
-    </Plate>
-  )
-}
-
-function SentencePlate({ title, lines, marks = 3 }: { title: string; lines: string[]; marks?: number }) {
-  return (
-    <Plate label={title}>
-      <div className="grid gap-5">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">{title}</span>
-          <span className="dante-rule" aria-hidden="true">{Array.from({ length: marks }, (_, index) => <i key={index} />)}</span>
-        </div>
-        <div className="grid gap-3 font-serif text-lg leading-relaxed text-foreground/90">
-          {lines.map((line) => <p key={line}>{line}</p>)}
-        </div>
-      </div>
-    </Plate>
-  )
-}
+/** Parâmetros da URL que algumas fases leem (primeiro valor de cada chave). */
+export type PhaseQuery = Record<string, string | undefined>
 
 function CipherPlate() {
   return (
@@ -92,83 +47,16 @@ function CipherPlate() {
       <div className="grid gap-5">
         <div className="flex items-center justify-between border-b border-border pb-3">
           <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">folha sem origem</span>
-          <span className="font-mono text-xs text-amber-200/80">III</span>
+          <span className="font-mono text-xs text-vigil/80">III</span>
         </div>
         <p className="break-words font-mono text-lg leading-relaxed tracking-[.08em] text-foreground sm:text-xl">
           ULPLQL / GRLV QRPHV / XP OLYUR / YHQWR
         </p>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 text-xs text-muted-foreground" data-nota="a mesma distância em todas as letras">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
           <span>margem: III</span>
           <span>cada letra conserva a distância</span>
         </div>
       </div>
-    </Plate>
-  )
-}
-
-function SignalArtifact() {
-  return (
-    <Plate label="sinal sem legenda">
-      <div className="grid gap-5">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">registro C</span>
-          <span className="font-mono text-xs text-muted-foreground">sem legenda</span>
-        </div>
-        <svg viewBox="0 0 720 150" role="img" aria-label="Forma de onda abstrata com três intervalos" className="dante-svg">
-          <rect width="720" height="150" fill="#101012" />
-          <path d="M24 75H696" stroke="#4d4a45" strokeDasharray="2 10" />
-          <path d="M24 75H112M132 75V42H156V108H180V75M220 75V34H244V116H268V75M308 75V48H332V102H356V75M428 75V38H452V112H476V75M548 75V45H572V105H596V75M636 75H696" fill="none" stroke="#c9944f" strokeWidth="3" />
-        </svg>
-        <audio controls preload="metadata" className="w-full" aria-label="registro C">
-          <source src="/dante/registro-c.wav" type="audio/wav" />
-        </audio>
-        <p className="text-xs leading-relaxed text-muted-foreground" data-nota="compare a forma em velocidades diferentes">
-          a forma não é a mensagem
-        </p>
-      </div>
-    </Plate>
-  )
-}
-
-function Mountain({ highlight }: { highlight: number }) {
-  return (
-    <Plate label="montanha do purgatório com nove estações">
-      <svg viewBox="0 0 720 500" role="img" className="dante-svg" aria-label="Montanha do purgatório; nove pontos marcam a praia, os sete terraços e o jardim no topo.">
-        <rect width="720" height="500" fill="#101012" />
-        <path d="M98 422 Q210 380 290 290 Q340 233 360 78 Q382 233 430 290 Q510 380 622 422Z" fill="#201e1c" stroke="#8d8578" strokeWidth="2" />
-        {Array.from({ length: 9 }, (_, index) => {
-          const y = 422 - index * 42
-          const width = 180 - index * 13
-          const active = index === highlight
-          return <g key={index}>
-            <path d={"M" + (360 - width) + " " + y + "H" + (360 + width)} stroke={active ? "#c9944f" : "#5e5a52"} strokeWidth={active ? "5" : "1"} />
-            <text x={360 - width - 12} y={y + 4} fill={active ? "#c9944f" : "#aaa394"} fontFamily="monospace" fontSize="11" textAnchor="end">{String(index + 1).padStart(2, "0")}</text>
-          </g>
-        })}
-        <circle cx="360" cy="78" r="8" fill="#c9944f" />
-        <text x="360" y="474" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">a subida apaga uma marca por vez</text>
-      </svg>
-    </Plate>
-  )
-}
-
-function Sphere({ highlight, title }: { highlight: number; title: string }) {
-  return (
-    <Plate label={title}>
-      <svg viewBox="0 0 720 460" role="img" className="dante-svg">
-        <title>{title}</title>
-        <desc>Nove esferas celestes concêntricas, com uma delas destacada e um ponto imóvel além de todas.</desc>
-        <rect width="720" height="460" fill="#101012" />
-        {Array.from({ length: 9 }, (_, index) => {
-          const radius = 184 - index * 18
-          const active = index === highlight
-          return <circle key={index} cx="360" cy="220" r={radius} fill="none" stroke={active ? "#c9944f" : "#6d685f"} strokeWidth={active ? "4" : "1"} opacity={active ? "1" : ".62"} />
-        })}
-        <circle cx="360" cy="220" r="8" fill="#e9e4d8" />
-        <circle cx="360" cy="220" r="201" fill="none" stroke="#c9944f" strokeDasharray="1 9" strokeWidth="2" opacity=".55" />
-        <text x="360" y="35" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">movimento · ordem · visão</text>
-        <text x="360" y="420" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">a nona esfera não é o fim do espaço</text>
-      </svg>
     </Plate>
   )
 }
@@ -193,172 +81,88 @@ function LicensedReading({ src, title, source }: { src: string; title: string; s
   )
 }
 
-function MusicReference({ videoId, title, movement }: { videoId: string; title: string; movement: string }) {
-  return (
-    <Plate label={title}>
-      <div className="grid gap-4">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <span className="font-mono text-xs tracking-[.22em] text-muted-foreground">escuta de referência</span>
-          <span className="font-mono text-xs text-amber-200/80">Liszt · {movement}</span>
-        </div>
-        <div className="aspect-video overflow-hidden border border-border bg-background">
-          <iframe
-            className="size-full"
-            src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0`}
-            title={title}
-            loading="lazy"
-            allow="encrypted-media; picture-in-picture"
-          />
-        </div>
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          gravação indicada pelo IMSLP · <a className="underline underline-offset-4" href="https://imslp.org/wiki/Dante_Symphony_(Liszt,_Franz)" target="_blank" rel="noreferrer">ver referência e créditos</a>
-        </p>
-      </div>
-    </Plate>
-  )
-}
-
-function SymbolArtifact({ media }: { media: ArtifactKind }) {
+function SymbolArtifact({ media, query }: { media: ArtifactKind; query: PhaseQuery }) {
   switch (media) {
-    case "limbo":
+    case "castle":
       return (
         <section className="flex flex-col gap-6">
-          <CharacterCard symbol="V" title="um castelo sem tormento" lines={["quatro nomes da antiguidade", "uma quinta voz latina", "nenhuma chama, nenhum batismo"]} />
+          <BrokenVoices />
           <LicensedReading src="/dante/registro-a.ogg" title="registro vocal A" source="https://commons.wikimedia.org/wiki/File:AlessandroSorrentinoIII_InfernoDante.ogg" />
         </section>
       )
     case "wind":
-      return (
-        <section className="flex flex-col gap-6">
-          <CipherPlate />
-          <LicensedReading src="/dante/registro-b.ogg" title="registro vocal B" source="https://commons.wikimedia.org/wiki/File:AlessandroSorrentinoV_InfernoDante.ogg" />
-        </section>
-      )
+      return <CipherPlate />
     case "rain":
-      return <SignalArtifact />
+      return <PitchRecord />
     case "weights":
-      return <SentencePlate title="sinal D" lines={["duas sequências.", "sentidos opostos.", "uma posição desaparece."]} marks={4} />
+      return <CrossingStrip />
     case "river":
-      return <SentencePlate title="duas camadas" lines={["uma margem invertida.", "um sobrenome separado.", "a leitura acontece ao contrário."]} marks={5} />
+      return <MudBubbles />
     case "tombs":
-      return <CharacterCard symbol="X" title="grade E" lines={["coordenadas deslocadas", "presente ausente", "uma cidade em disputa"]} />
+      return <StoneGrid />
     case "blood":
-      return <SentencePlate title="limiar F" lines={["níveis diferentes.", "metades incompletas.", "um centro bloqueado."]} marks={6} />
+      return <RiverDepths level={levelFrom(query)} />
     case "flame":
-      return (
-        <section className="flex flex-col gap-6">
-          <SentencePlate title="dois canais" lines={["uma faixa contínua.", "duas leituras.", "um limite no mapa.", "uma cidade distante."]} marks={8} />
-          <MusicReference videoId="hty3lZSYIww" title="escuta de referência · registro D" movement="movimento I" />
-        </section>
-      )
+      return <TwoChannels />
     case "ice":
-      return <SentencePlate title="grade G" lines={["o centro não se move.", "três por três.", "um calendário incompleto."]} marks={9} />
-    case "shore":
-      return <SentencePlate title="horizonte A" lines={["duas línguas.", "uma margem.", "uma figura sem nome."]} marks={2} />
-    case "marble":
-      return <Mountain highlight={1} />
-    case "eyes":
-      return <SentencePlate title="duas camadas" lines={["contornos.", "um canal por vez.", "a mesma falta."]} marks={2} />
-    case "smoke":
-      return <SentencePlate title="contraste B" lines={["uma camada vazia.", "falas fora de ordem.", "liberdade e céu."]} marks={3} />
-    case "race":
-      return <SentencePlate title="intervalos C" lines={["pontos em movimento.", "chegadas diferentes.", "uma pergunta repetida."]} marks={4} />
-    case "earth":
-      return <Mountain highlight={5} />
-    case "fruit":
-      return <SentencePlate title="distâncias D" lines={["pontos próximos.", "sílabas fora de ordem.", "uma falta depois da refeição."]} marks={6} />
-    case "fire":
-      return (
-        <section className="flex flex-col gap-6">
-          <SentencePlate title="sete faixas" lines={["interrupções.", "palavras que atravessam.", "uma voz muda."]} marks={7} />
-          <MusicReference videoId="GbZTnsr3TuA" title="escuta de referência · registro E" movement="movimento II" />
-        </section>
-      )
-    case "garden":
-      return <CharacterCard symbol="B" title="o jardim no alto" lines={["duas águas", "uma mulher entre árvores", "um guia muda de rosto"]} />
-    case "moon":
-      return <Sphere highlight={0} title="a primeira esfera" />
-    case "mercury":
-      return <Sphere highlight={1} title="a segunda esfera" />
-    case "venus":
-      return <Sphere highlight={2} title="a terceira esfera" />
-    case "sun":
-      return <Sphere highlight={3} title="a quarta esfera" />
-    case "cross":
-      return (
-        <Plate label="composição geométrica">
-          <svg viewBox="0 0 720 460" role="img" className="dante-svg">
-            <rect width="720" height="460" fill="#101012" />
-            <path d="M170 90H550M170 230H550M170 370H550M230 50V410M360 50V410M490 50V410" stroke="#5e5a52" strokeWidth="1" />
-            {Array.from({ length: 18 }, (_, index) => <circle key={index} cx={230 + (index % 3) * 130} cy={90 + Math.floor(index / 3) * 70} r={index % 4 === 0 ? 6 : 3} fill={index % 4 === 0 ? "#c9944f" : "#e9e4d8"} />)}
-            <text x="360" y="35" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">pontos e traços · uma partida</text>
-          </svg>
-        </Plate>
-      )
-    case "eagle":
-      return <CharacterCard symbol="∴" title="rota de letras" lines={["uma frase incompleta", "uma célula marcada", "justiça sem nome"]} />
-    case "ladder":
-      return (
-        <Plate label="colunas em movimento">
-          <svg viewBox="0 0 720 460" role="img" className="dante-svg">
-            <rect width="720" height="460" fill="#101012" />
-            <path d="M222 386V70M310 386V70M400 386V70M488 386V70" stroke="#c9944f" strokeWidth="2" />
-            {Array.from({ length: 10 }, (_, index) => {
-              const y = 370 - index * 31
-              const left = 205 + (index % 4) * 90
-              return <path key={index} d={"M" + left + " " + y + "H" + (left + 52)} stroke="#e9e4d8" strokeWidth="2" />
-            })}
-            <text x="360" y="425" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">leitura vertical · intervalos</text>
-          </svg>
-        </Plate>
-      )
-    case "virtues":
-      return <SentencePlate title="três perguntas" lines={["símbolo I", "símbolo II", "símbolo III"]} marks={3} />
-    case "angels":
-      return <Sphere highlight={8} title="o movimento de tudo" />
-    case "gate":
-      return (
-        <Plate label="porta de entrada da viagem">
-          <svg viewBox="0 0 720 420" role="img" className="dante-svg">
-            <rect width="720" height="420" fill="#101012" />
-            <path d="M205 365V112Q205 44 360 44T515 112V365" fill="none" stroke="#c9944f" strokeWidth="4" />
-            <path d="M258 365V144Q258 97 360 97T462 144V365" fill="none" stroke="#6d685f" strokeWidth="2" />
-            <path d="M311 365V170Q311 150 360 150T409 170V365" fill="none" stroke="#6d685f" />
-            <text x="360" y="395" fill="#aaa394" fontFamily="monospace" fontSize="11" textAnchor="middle">uma porta não é a mesma coisa que um caminho</text>
-          </svg>
-        </Plate>
-      )
+      return <FrozenGrid grade={query.grade ?? null} />
     case "inferno-meta":
-      return <RingMap highlight={4} label="nove círculos concêntricos; a quarta marca está acesa para indicar que a ordem é estrutural." />
+      return <InfernoRings />
+    case "shore":
+      return <ShoreReflection />
+    case "marble":
+      return <PavementCarvings />
+    case "eyes":
+      return <RiverBlind />
+    case "smoke":
+      return <SmokeScreen fumaca={query.fumaca ?? query["fumaça"]} />
+    case "race":
+      return <RunningSouls />
+    case "earth":
+      return <ProneSouls />
+    case "fruit":
+      return <FruitShadows />
+    case "fire":
+      return <FireWall muro={query.muro} />
+    case "garden":
+      return <TwoWaters agua={query.agua ?? query["água"]} />
     case "purgatorio-meta":
-      return <Mountain highlight={8} />
+      return <PurgatorioMountain />
+    case "moon":
+      return <MoonSurfaces />
+    case "mercury":
+      return <EagleDocument />
+    case "orbits":
+      return <OrbitPaths />
+    case "sun":
+      return <CrownOfLights />
+    case "cross":
+      return <CrossMorse />
+    case "eagle":
+      return <SpiralRoute />
+    case "ladder":
+      return <GoldenLadder />
+    case "virtues":
+      return <ExamBoard exame={query.exame} />
+    case "angels":
+      return <AngelRings coro={query.coro} />
     case "paradiso-meta":
-      return (
-        <section className="flex flex-col gap-6">
-          <Sphere highlight={8} title="nove esferas e um ponto além delas" />
-          <div className="grid gap-3 border-y border-border py-4 font-serif text-lg leading-relaxed">
-            <p>o primeiro caminho termina olhando para as estrelas.</p>
-            <p>o segundo sobe até as estrelas.</p>
-            <p>o terceiro move o sol e as estrelas.</p>
-          </div>
-          <FinalMetaPuzzle />
-        </section>
-      )
-    default:
-      return <SymbolArtifact media="gate" />
+      return <ParadisoSpheres />
   }
 }
 
-export function PhaseArtifact({ media }: { media?: ArtifactKind }) {
-  return <section className="flex flex-col gap-6">{media ? <SymbolArtifact media={media} /> : <SymbolArtifact media="gate" />}</section>
+export function PhaseArtifact({ media, query = {} }: { media: ArtifactKind; query?: PhaseQuery }) {
+  return <section className="flex flex-col gap-6"><SymbolArtifact media={media} query={query} /></section>
 }
+
+const CANTICA_NAMES: Record<string, string> = { inferno: "inferno", purgatorio: "purgatório", paradiso: "paraíso" }
 
 export function PhaseFooter({ index, cantica }: { index: number; cantica: string }) {
   return (
     <footer className="flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
       <div className="flex items-center gap-2">
         <FlowerMark className="size-4" />
-        <span>vigília · {cantica} · registro incompleto</span>
+        <span>vigília · {CANTICA_NAMES[cantica] ?? cantica}</span>
       </div>
       <span className="font-mono tabular-nums">{String(index).padStart(2, "0")}/30</span>
     </footer>
@@ -368,7 +172,7 @@ export function PhaseFooter({ index, cantica }: { index: number; cantica: string
 export function CanticaMark({ cantica }: { cantica: string }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border pb-4 text-xs text-muted-foreground">
-      <span className="font-mono uppercase tracking-[.18em]">{cantica}</span>
+      <span className="font-mono uppercase tracking-[.18em]">{CANTICA_NAMES[cantica] ?? cantica}</span>
       <span className="font-serif italic">registro incompleto</span>
     </div>
   )

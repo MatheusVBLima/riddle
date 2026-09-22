@@ -3,14 +3,13 @@
 import { randomUUID } from "node:crypto"
 import { cookies } from "next/headers"
 
-import { FINAL_LETTERS } from "@/lib/canon"
-import {
-  getPhase,
-  isCorrect,
-  isFinalAnswer,
-  PHASE_COUNT,
-  verifyFinalReconstruction,
-} from "@/lib/phases"
+import { getPhase, intermediateFor, isCorrect, PHASE_COUNT } from "@/lib/phases"
+import { isUnlocked, recordHint, recordSolved, solutionWait } from "@/lib/session"
+
+export type SolutionResult =
+  | { status: "open"; text: string }
+  | { status: "waiting"; minutes: number }
+  | { status: "locked" }
 
 export type AnswerResult =
   | { status: "correct"; next: number | null; answer: string }
@@ -57,57 +56,38 @@ async function canAttempt(index: number): Promise<boolean> {
 
 export async function submitAnswer(index: number, submitted: string): Promise<AnswerResult> {
   if (!submitted.trim()) return { status: "empty" }
-  if (index === 30 || !getPhase(index)) return { status: "wrong" }
+  if (!getPhase(index) || !(await isUnlocked(index))) return { status: "wrong" }
   if (!(await canAttempt(index))) return { status: "rate-limited" }
 
-  if (!isCorrect(index, submitted)) return { status: "wrong" }
+  if (!isCorrect(index, submitted)) {
+    const message = intermediateFor(index, submitted)
+    return message ? { status: "rejected", message } : { status: "wrong" }
+  }
 
   const phase = getPhase(index)
   if (!phase) return { status: "wrong" }
 
+  await recordSolved(index)
   const next = index < PHASE_COUNT ? index + 1 : null
   return { status: "correct", next, answer: phase.answer }
 }
 
-export async function submitFinalName(
-  letters: string[],
-  submitted: string
-): Promise<AnswerResult> {
-  if (!submitted.trim()) return { status: "empty" }
-  if (!(await canAttempt(30))) return { status: "rate-limited" }
-
-  const normalizedLetters = letters.map((letter) => letter.trim().toUpperCase())
-  if (
-    normalizedLetters.length !== FINAL_LETTERS.length ||
-    !verifyFinalReconstruction(normalizedLetters) ||
-    !isFinalAnswer(submitted)
-  ) {
-    return { status: "wrong" }
-  }
-
-  const phase = getPhase(30)
-  return phase
-    ? { status: "correct", next: null, answer: phase.answer }
-    : { status: "wrong" }
-}
-
 export async function revealHint(index: number): Promise<string | null> {
-  return getPhase(index)?.hint ?? null
+  const phase = getPhase(index)
+  if (!phase || !(await isUnlocked(index))) return null
+  await recordHint(index)
+  return phase.hint
 }
 
-export async function revealSolution(index: number): Promise<string | null> {
-  return getPhase(index)?.solution ?? null
-}
-
-/** Compatibilidade para o componente de bolso mantido no arquivo histórico. */
-export async function stampPocketCookie(): Promise<{ fallbackValue: string }> {
-  const jar = await cookies()
-  const value = "ZAFKAVTAPXAGW"
-  jar.set("vigilia_bolso", value, { httpOnly: false, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 })
-  return { fallbackValue: value }
-}
-
-/** Compatibilidade para o componente de gaveta mantido no arquivo histórico. */
-export async function revealDrawer(): Promise<string> {
-  return "prensa de herbário · 30 × 45 · quatro parafusos"
+/**
+ * A solução só abre um tempo depois da dica: quem pediu um empurrão tem a
+ * chance de usá-lo, e ninguém esvazia o arquivo chamando a action em série.
+ */
+export async function revealSolution(index: number): Promise<SolutionResult> {
+  const phase = getPhase(index)
+  if (!phase || !(await isUnlocked(index))) return { status: "locked" }
+  const wait = await solutionWait(index)
+  if (wait === null) return { status: "locked" }
+  if (wait > 0) return { status: "waiting", minutes: Math.ceil(wait / 60000) }
+  return { status: "open", text: phase.solution }
 }

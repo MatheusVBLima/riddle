@@ -24,7 +24,7 @@ export function ResumeLink() {
   if (reached <= 1) return null
 
   return (
-    <Button render={<Link href={`/f/${reached}`} />} variant="outline" size="sm" className="font-mono text-xs tracking-[.08em]">
+    <Button nativeButton={false} render={<Link href={`/f/${reached}`} />} variant="outline" size="sm" className="font-mono text-xs tracking-[.08em]">
       Voltar para a {reached}ª
     </Button>
   )

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { markSolved } from "@/lib/progress"
 
-export function AnswerForm({ index }: { index: number }) {
+export function AnswerForm({ index, shape }: { index: number; shape: number[] }) {
   const router = useRouter()
   const [value, setValue] = React.useState("")
   const [result, setResult] = React.useState<AnswerResult | null>(null)
@@ -24,7 +24,7 @@ export function AnswerForm({ index }: { index: number }) {
       if (outcome.status !== "correct") return
 
       markSolved(index, outcome.answer)
-      if (outcome.next) router.push(`/f/${outcome.next}`)
+      router.push(outcome.next ? `/f/${outcome.next}` : "/vigilia")
     })
   }
 
@@ -55,16 +55,22 @@ export function AnswerForm({ index }: { index: number }) {
         </Button>
       </div>
 
+      {shape.length > 0 && (
+        <p className="font-mono text-xs text-muted-foreground">
+          formato · <span className="tracking-[.3em]">{shape.map((length) => "_".repeat(length)).join("  ")}</span> ({shape.join(" + ")})
+        </p>
+      )}
+
       <p
         role="status"
         aria-live="polite"
         className="min-h-5 text-sm text-muted-foreground"
       >
         {result?.status === "wrong" && "Não é isso. A pista ainda está na página."}
-        {result?.status === "rejected" && result.message}
+        {result?.status === "rejected" && <span className="text-vigil">{result.message}</span>}
         {result?.status === "rate-limited" && "O arquivo não responde a pressa."}
         {result?.status === "empty" && "Escreva alguma coisa antes de enviar."}
-        {solved && !result.next && "Você chegou ao fim do que existe até agora."}
+        {solved && !result.next && "Certo. O arquivo se fecha."}
         {solved && result.next && "Certo. Abrindo a próxima."}
       </p>
     </form>

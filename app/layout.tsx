@@ -5,9 +5,9 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
-const instrument = Instrument_Serif({ weight: "400", subsets: ["latin"], variable: "--font-serif" })
-const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+const instrument = Instrument_Serif({ weight: "400", subsets: ["latin"], variable: "--font-instrument" })
+const fontMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" })
 
 export const metadata: Metadata = {
   title: { default: "vigília", template: "%s — vigília" },
